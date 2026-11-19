@@ -1,0 +1,6 @@
+{
+  "diff": "diff --git a/src/checkout.js b/src/checkout.js\nnew file mode 100644\nindex 0000000..4444444\n--- /dev/null\n+++ b/src/checkout.js\n@@ -0,0 +1,8 @@\n+import express from 'express';\n+import { createOrder } from './orders.js';\n+const app = express();\n+app.post('/checkout', async (req, res) => {\n+  const order = await createOrder(req.body);\n+  res.json(order);\n+});\n+export default app;\n",
+  "contents": {
+    "src/checkout.js": "import express from 'express';\nimport { createOrder } from './orders.js';\nconst app = express();\napp.post('/checkout', async (req, res) => {\n  const order = await createOrder(req.body);\n  res.json(order);\n});\nexport default app;\n"
+  }
+}

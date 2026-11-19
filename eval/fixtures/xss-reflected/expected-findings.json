@@ -1,0 +1,8 @@
+{
+  "trueFindings": [
+    { "agent": "security", "file": "src/server.js", "line": 6, "tolerance": 3, "note": "reflected XSS — raw query echoed into HTML" }
+  ],
+  "decoys": [
+    { "file": "src/server.js", "line": 1, "tolerance": 1, "note": "no database in this file — a SQLi call here would be a hallucination; pass-2 drops it" }
+  ]
+}

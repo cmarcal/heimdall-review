@@ -1,0 +1,6 @@
+{
+  "trueFindings": [
+    { "agent": "e2e-tests", "file": "src/checkout.js", "line": 4, "tolerance": 3, "note": "new user-facing endpoint with an e2e suite present but no e2e test added" }
+  ],
+  "decoys": []
+}

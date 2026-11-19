@@ -1,0 +1,58 @@
+{
+  "$comment": "Model tier per agent role. capability: high | standard | basic — basic triggers the honest disclosure line in the PR summary. heimdall doctor verifies the declaration is honest. Switch presets with --preset or HEIMDALL_PRESET.",
+  "preset": "openrouter",
+  "presets": {
+    "anthropic": {
+      "provider": "anthropic",
+      "baseUrl": "https://api.anthropic.com/v1",
+      "keyEnv": "ANTHROPIC_API_KEY",
+      "jsonMode": "prompt",
+      "agents": {
+        "security":       { "model": "claude-sonnet-4-5", "capability": "high",     "pricePerMTok": { "input": 3, "output": 15 } },
+        "requirements":   { "model": "claude-sonnet-4-5", "capability": "high",     "pricePerMTok": { "input": 3, "output": 15 } },
+        "e2e-tests":      { "model": "claude-haiku-4-5",  "capability": "standard", "pricePerMTok": { "input": 1, "output": 5 } },
+        "architecture":   { "model": "claude-haiku-4-5",  "capability": "standard", "pricePerMTok": { "input": 1, "output": 5 } },
+        "regression":     { "model": "claude-sonnet-4-5", "capability": "high",     "pricePerMTok": { "input": 3, "output": 15 } },
+        "performance":    { "model": "claude-haiku-4-5",  "capability": "standard", "pricePerMTok": { "input": 1, "output": 5 } },
+        "verifier":       { "model": "claude-sonnet-4-5", "capability": "high",     "pricePerMTok": { "input": 3, "output": 15 } },
+        "consolidator":   { "model": "claude-sonnet-4-5", "capability": "high",     "pricePerMTok": { "input": 3, "output": 15 } },
+        "gap-check":      { "model": "claude-haiku-4-5",  "capability": "standard", "pricePerMTok": { "input": 1, "output": 5 } }
+      }
+    },
+    "openrouter": {
+      "provider": "openai-compatible",
+      "baseUrl": "https://openrouter.ai/api/v1",
+      "keyEnv": "OPENROUTER_API_KEY",
+      "jsonMode": "prompt",
+      "agents": {
+        "security":       { "model": "meta-llama/llama-3.3-70b-instruct:free", "capability": "basic" },
+        "requirements":   { "model": "meta-llama/llama-3.3-70b-instruct:free", "capability": "basic" },
+        "e2e-tests":      { "model": "meta-llama/llama-3.3-70b-instruct:free", "capability": "basic" },
+        "architecture":   { "model": "meta-llama/llama-3.3-70b-instruct:free", "capability": "basic" },
+        "regression":     { "model": "meta-llama/llama-3.3-70b-instruct:free", "capability": "basic" },
+        "performance":    { "model": "meta-llama/llama-3.3-70b-instruct:free", "capability": "basic" },
+        "verifier":       { "model": "meta-llama/llama-3.3-70b-instruct:free", "capability": "basic" },
+        "consolidator":   { "model": "meta-llama/llama-3.3-70b-instruct:free", "capability": "basic" },
+        "gap-check":      { "model": "meta-llama/llama-3.3-70b-instruct:free", "capability": "basic" }
+      }
+    },
+    "ollama-local": {
+      "provider": "openai-compatible",
+      "baseUrl": "http://localhost:11434/v1",
+      "keyEnv": null,
+      "staticKey": "ollama",
+      "jsonMode": "prompt",
+      "agents": {
+        "security":       { "model": "qwen2.5-coder:32b", "capability": "basic" },
+        "requirements":   { "model": "qwen2.5-coder:32b", "capability": "basic" },
+        "e2e-tests":      { "model": "qwen2.5-coder:32b", "capability": "basic" },
+        "architecture":   { "model": "qwen2.5-coder:32b", "capability": "basic" },
+        "regression":     { "model": "qwen2.5-coder:32b", "capability": "basic" },
+        "performance":    { "model": "qwen2.5-coder:32b", "capability": "basic" },
+        "verifier":       { "model": "qwen2.5-coder:32b", "capability": "basic" },
+        "consolidator":   { "model": "qwen2.5-coder:32b", "capability": "basic" },
+        "gap-check":      { "model": "llama3.2:3b",       "capability": "basic" }
+      }
+    }
+  }
+}

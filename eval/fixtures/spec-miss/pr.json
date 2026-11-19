@@ -1,0 +1,6 @@
+{
+  "diff": "diff --git a/src/items.js b/src/items.js\nnew file mode 100644\nindex 0000000..3333333\n--- /dev/null\n+++ b/src/items.js\n@@ -0,0 +1,4 @@\n+app.get('/items', async (req, res) => {\n+  const rows = await db.all('SELECT * FROM items');\n+  res.json(rows);\n+});\n",
+  "contents": {
+    "src/items.js": "app.get('/items', async (req, res) => {\n  const rows = await db.all('SELECT * FROM items');\n  res.json(rows);\n});\n"
+  }
+}

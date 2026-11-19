@@ -1,0 +1,7 @@
+{
+  "diff": "diff --git a/src/util.js b/src/util.js\nindex aaa1111..bbb2222 100644\n--- a/src/util.js\n+++ b/src/util.js\n@@ -1,4 +1,3 @@\n export function parseV1(s) {\n   return JSON.parse(s);\n }\n-export function parseV2(s) { return s; }\ndiff --git a/src/service.js b/src/service.js\nnew file mode 100644\nindex 0000000..ccc3333\n--- /dev/null\n+++ b/src/service.js\n@@ -0,0 +1,5 @@\n+import { parseV2 } from './util.js';\n+\n+export function handle(body) {\n+  return parseV2(body);\n+}\n",
+  "contents": {
+    "src/util.js": "export function parseV1(s) {\n  return JSON.parse(s);\n}\n",
+    "src/service.js": "import { parseV2 } from './util.js';\n\nexport function handle(body) {\n  return parseV2(body);\n}\n"
+  }
+}

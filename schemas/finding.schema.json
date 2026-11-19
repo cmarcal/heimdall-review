@@ -1,0 +1,28 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Heimdall Finding",
+  "description": "A verified review finding. No finding survives without an evidence quote that exists in the reviewed code. Numeric scores are private to the harness; only the tier is published.",
+  "type": "object",
+  "required": [
+    "findingId", "agent", "file", "line", "title",
+    "verifiedEvidence", "why", "suggestion",
+    "impact", "certainty", "blastRadius", "score", "tier", "status"
+  ],
+  "properties": {
+    "findingId":   { "type": "string", "description": "sha1(file + bucketedLine + primaryCategory).slice(0,12) — stable across runs, joins calibration data" },
+    "agent":       { "type": "string", "enum": ["security", "requirements", "e2e-tests", "architecture", "regression", "performance"] },
+    "mergedAgents":{ "type": "array", "items": { "type": "string" }, "description": "all categories after consolidation dedupe" },
+    "file":        { "type": "string" },
+    "line":        { "type": "integer", "minimum": 1 },
+    "title":       { "type": "string" },
+    "verifiedEvidence": { "type": "string", "description": "exact quote re-read from the real code in the second pass" },
+    "why":         { "type": "string" },
+    "suggestion":  { "type": "string" },
+    "status":      { "type": "string", "enum": ["keep", "question"], "description": "anything the verifier could not substantiate is dropped, never posted" },
+    "impact":      { "type": "integer", "minimum": 0, "maximum": 10 },
+    "certainty":   { "type": "integer", "minimum": 0, "maximum": 10 },
+    "blastRadius": { "type": "integer", "minimum": 0, "maximum": 10 },
+    "score":       { "type": "integer", "minimum": 0, "maximum": 30 },
+    "tier":        { "type": "string", "enum": ["blocker", "major", "minor", "nit"] }
+  }
+}

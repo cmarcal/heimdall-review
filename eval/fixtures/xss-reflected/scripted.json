@@ -1,0 +1,24 @@
+{
+  "script": {
+    "security": "[{\"file\":\"src/server.js\",\"line\":6,\"title\":\"Reflected XSS: query echoed into HTML\",\"evidenceQuote\":\"res.send('<h1>Results for ' + q + '</h1>');\",\"why\":\"Unescaped user input is concatenated into the HTML response, so a crafted query runs script in the victim's browser.\",\"suggestion\":\"Escape q (e.g. escape-html) or use a template engine that auto-escapes.\",\"impact\":9,\"certainty\":8,\"blastRadius\":8},{\"file\":\"src/server.js\",\"line\":1,\"title\":\"Possible SQL injection on search\",\"evidenceQuote\":\"const express = require('express');\",\"why\":\"Guessing that a DB layer is involved below.\",\"suggestion\":\"Parameterize the query.\",\"impact\":9,\"certainty\":3,\"blastRadius\":7}]",
+    "verifier": "[{\"file\":\"src/server.js\",\"line\":6,\"title\":\"Reflected XSS: query echoed into HTML\",\"evidenceQuote\":\"res.send('<h1>Results for ' + q + '</h1>');\",\"why\":\"Unescaped user input is concatenated into the HTML response, so a crafted query runs script in the victim's browser.\",\"suggestion\":\"Escape q (e.g. escape-html) or use a template engine that auto-escapes.\",\"impact\":9,\"certainty\":8,\"blastRadius\":8,\"status\":\"keep\",\"verifiedEvidence\":\"res.send('<h1>Results for ' + q + '</h1>');\"},{\"file\":\"src/server.js\",\"line\":1,\"title\":\"Possible SQL injection on search\",\"evidenceQuote\":\"const express = require('express');\",\"why\":\"Guessing that a DB layer is involved below.\",\"suggestion\":\"Parameterize the query.\",\"impact\":9,\"certainty\":3,\"blastRadius\":7,\"status\":\"drop\",\"verifiedEvidence\":\"\"}]",
+    "requirements": "[]",
+    "e2e-tests": "[]",
+    "architecture": "[]",
+    "regression": "[]",
+    "performance": "[]",
+    "standards": "[]",
+    "consolidator": "@echo-groups",
+    "gap-check": "{\"clean\":true}"
+  },
+  "models": {
+    "security": {
+      "model": "scripted:high",
+      "capability": "high"
+    },
+    "verifier": {
+      "model": "scripted:high",
+      "capability": "high"
+    }
+  }
+}

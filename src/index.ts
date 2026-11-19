@@ -1,0 +1,12 @@
+export { runReview } from './lib/orchestrator.js';
+export { GitHubSource } from './sources/github.js';
+export { FixtureSource } from './sources/fixture.js';
+export { ScriptedLlm } from './llm/scripted.js';
+export { RoleLlm } from './llm/factory.js';
+export * from './lib/types.js';
+export { parsePatch, applyCaps } from './lib/diff.js';
+export { parseLinkedIssue } from './lib/ticket.js';
+export { mergeCloseFindings } from './lib/dedupe.js';
+export { parseManifest, defaultManifest } from './lib/manifest.js';
+export { scoreOf, tierOf, findingId } from './lib/scoring.js';
+export { candidateSchema, verifiedArraySchema } from './lib/finding.js';

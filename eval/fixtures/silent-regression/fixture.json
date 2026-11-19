@@ -1,0 +1,20 @@
+{
+  "repo": "acme/shared",
+  "pr": {
+    "number": 23,
+    "title": "Drop deprecated parseV2 from util",
+    "body": "Removes parseV2. Adds new handle(). Closes #19",
+    "author": "dev",
+    "url": "https://github.com/acme/shared/pull/23",
+    "headRef": "chore/drop-parsev2",
+    "baseRef": "main",
+    "headSha": "beef123"
+  },
+  "ticket": {
+    "number": 19,
+    "title": "Remove deprecated parseV2",
+    "body": "parseV2 is unused and should be removed. Update any remaining callers first.",
+    "url": "https://github.com/acme/shared/issues/19"
+  },
+  "ticketSource": "body"
+}

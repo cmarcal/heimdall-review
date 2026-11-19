@@ -1,0 +1,8 @@
+{
+  "trueFindings": [
+    { "agent": "performance", "file": "services/orders.js", "line": 5, "tolerance": 2, "note": "N+1: query per order inside the loop" }
+  ],
+  "decoys": [
+    { "file": "services/orders.js", "line": 2, "tolerance": 1, "note": "the initial fetch is fine — flagging it would be noise" }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "repo": "acme/orders",
+  "pr": {
+    "number": 7,
+    "title": "List orders with items",
+    "body": "New listOrders service. Refs #3",
+    "author": "dev",
+    "url": "https://github.com/acme/orders/pull/7",
+    "headRef": "feat/list-orders",
+    "baseRef": "main",
+    "headSha": "dead111"
+  },
+  "ticket": {
+    "number": 3,
+    "title": "List orders with their items",
+    "body": "listOrders returns each order together with its items.",
+    "url": "https://github.com/acme/orders/issues/3"
+  },
+  "ticketSource": "body"
+}

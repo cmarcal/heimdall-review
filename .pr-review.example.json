@@ -1,0 +1,17 @@
+{
+  "$comment": "Copy to `.pr-review.json` in the root of any repo you want Heimdall to review. Every key is optional — defaults shown here.",
+  "preset": null,
+  "budgetUsd": 3,
+  "maxFileChangedLines": 400,
+  "maxTotalChangedLines": 3000,
+  "skip": ["**/*.lock", "**/package-lock.json", "**/yarn.lock", "**/pnpm-lock.yaml", "**/dist/**", "**/build/**", "**/generated/**", "**/*.min.js", "**/*.min.css", "**/*.svg", "**/*.png", "**/*.jpg", "**/*.gif", "**/*.ico", "**/*.pdf"],
+  "specs": ["docs/rfc/**", "docs/specs/**", "docs/prd/**", "docs/adr/**"],
+  "agents": {
+    "security":     { "enabled": true, "docs": ["docs/security.md", "docs/integration-patterns.md"] },
+    "requirements": { "enabled": true, "docs": [] },
+    "e2e-tests":    { "enabled": true, "docs": ["docs/testing.md", "docs/create-e2e-tests.md"] },
+    "architecture": { "enabled": true, "docs": ["docs/architecture.md", "docs/adr/**"] },
+    "regression":   { "enabled": true, "docs": [] },
+    "performance":  { "enabled": true, "docs": [] }
+  }
+}

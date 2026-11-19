@@ -1,0 +1,6 @@
+{
+  "diff": "diff --git a/services/orders.js b/services/orders.js\nnew file mode 100644\nindex 0000000..2222222\n--- /dev/null\n+++ b/services/orders.js\n@@ -0,0 +1,9 @@\n+async function listOrders(db) {\n+  const orders = await db.query('SELECT id FROM orders');\n+  const results = [];\n+  for (const o of orders) {\n+    const items = await db.query('SELECT * FROM items WHERE order_id = ' + o.id);\n+    results.push({ order: o, items });\n+  }\n+  return results;\n+}\n",
+  "contents": {
+    "services/orders.js": "async function listOrders(db) {\n  const orders = await db.query('SELECT id FROM orders');\n  const results = [];\n  for (const o of orders) {\n    const items = await db.query('SELECT * FROM items WHERE order_id = ' + o.id);\n    results.push({ order: o, items });\n  }\n  return results;\n}\n"
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "trueFindings": [
+    { "agent": "requirements", "file": "src/items.js", "line": 2, "tolerance": 3, "note": "ticket requires pagination + limit cap; none implemented" }
+  ],
+  "decoys": [
+    { "file": "src/items.js", "line": 3, "tolerance": 0, "note": "res.json(rows) itself is not a separate requirement miss" }
+  ]
+}

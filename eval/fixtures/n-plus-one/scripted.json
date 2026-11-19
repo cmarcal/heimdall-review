@@ -1,0 +1,17 @@
+{
+  "script": {
+    "performance": "[{\"file\":\"services/orders.js\",\"line\":5,\"title\":\"N+1 queries in listOrders\",\"evidenceQuote\":\"const items = await db.query('SELECT * FROM items WHERE order_id = ' + o.id);\",\"why\":\"One query fires per order, so a 10k-order page issues 10k round-trips and times out.\",\"suggestion\":\"Fetch all items in one query WHERE order_id = ANY(ids) and group in memory.\",\"impact\":6,\"certainty\":8,\"blastRadius\":7}]",
+    "verifier": "[{\"file\":\"services/orders.js\",\"line\":5,\"title\":\"N+1 queries in listOrders\",\"evidenceQuote\":\"const items = await db.query('SELECT * FROM items WHERE order_id = ' + o.id);\",\"why\":\"One query fires per order, so a 10k-order page issues 10k round-trips and times out.\",\"suggestion\":\"Fetch all items in one query WHERE order_id = ANY(ids) and group in memory.\",\"impact\":6,\"certainty\":8,\"blastRadius\":7,\"status\":\"keep\",\"verifiedEvidence\":\"const items = await db.query('SELECT * FROM items WHERE order_id = ' + o.id);\"}]",
+    "security": "[]",
+    "requirements": "[]",
+    "e2e-tests": "[]",
+    "architecture": "[]",
+    "regression": "[]",
+    "consolidator": "@echo-groups",
+    "gap-check": "{\"clean\":true}"
+  },
+  "models": {
+    "performance": { "model": "scripted:standard", "capability": "standard" },
+    "verifier": { "model": "scripted:high", "capability": "high" }
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "script": {
+    "regression": "[{\"file\":\"src/service.js\",\"line\":1,\"title\":\"Imports parseV2, which this PR just deleted\",\"evidenceQuote\":\"import { parseV2 } from './util.js';\",\"why\":\"util.js now exports only parseV1, so parseV2 is undefined at import and handle() throws on first call.\",\"suggestion\":\"Import parseV1, or keep parseV2 until no caller remains.\",\"impact\":9,\"certainty\":8,\"blastRadius\":5}]",
+    "verifier": "[{\"file\":\"src/service.js\",\"line\":1,\"title\":\"Imports parseV2, which this PR just deleted\",\"evidenceQuote\":\"import { parseV2 } from './util.js';\",\"why\":\"util.js now exports only parseV1, so parseV2 is undefined at import and handle() throws on first call.\",\"suggestion\":\"Import parseV1, or keep parseV2 until no caller remains.\",\"impact\":9,\"certainty\":8,\"blastRadius\":5,\"status\":\"keep\",\"verifiedEvidence\":\"import { parseV2 } from './util.js';\"}]",
+    "security": "[]",
+    "requirements": "[]",
+    "e2e-tests": "[]",
+    "architecture": "[]",
+    "performance": "[]",
+    "consolidator": "@echo-groups",
+    "gap-check": "{\"clean\":true}"
+  },
+  "models": {
+    "regression": { "model": "scripted:high", "capability": "high" },
+    "verifier": { "model": "scripted:high", "capability": "high" },
+    "gap-check": { "model": "scripted:standard", "capability": "standard" }
+  }
+}

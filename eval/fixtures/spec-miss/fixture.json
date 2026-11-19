@@ -1,0 +1,20 @@
+{
+  "repo": "acme/catalog",
+  "pr": {
+    "number": 15,
+    "title": "Add item listing endpoint",
+    "body": "GET /items returns catalog items. Closes #8",
+    "author": "dev",
+    "url": "https://github.com/acme/catalog/pull/15",
+    "headRef": "feat/item-list",
+    "baseRef": "main",
+    "headSha": "cafe000"
+  },
+  "ticket": {
+    "number": 8,
+    "title": "Paginated item listing",
+    "body": "GET /items MUST support ?page and ?limit query params and cap limit at 100.\n\nAcceptance:\n- page/limit return that slice\n- limit > 100 is rejected with HTTP 400\n- default limit is 20",
+    "url": "https://github.com/acme/catalog/issues/8"
+  },
+  "ticketSource": "body"
+}

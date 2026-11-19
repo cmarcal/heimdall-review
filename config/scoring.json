@@ -1,0 +1,19 @@
+{
+  "$comment": "PRIVATE calibration map. Scores are computed from three sub-scores (0-10 each) weighted and summed, then mapped to the public tier. These numbers NEVER appear in the PR — only the tier icon/label does. See docs/CALIBRATION.md.",
+  "weights": {
+    "impact": 1,
+    "certainty": 1,
+    "blastRadius": 1
+  },
+  "tiers": [
+    { "id": "blocker", "min": 24, "icon": "💀", "label": "Blocker" },
+    { "id": "major", "min": 16, "icon": "🔴", "label": "Major" },
+    { "id": "minor", "min": 8, "icon": "🟡", "label": "Minor" },
+    { "id": "nit", "min": 0, "icon": "🔵", "label": "Nit" }
+  ],
+  "question": {
+    "$comment": "A pass-2 'question' is a concern the verifier could NOT confirm from the code — its tier must never exceed maxTier, whatever the finder scored it. A real PR on a private app repo: a speculative 'login might outrun init()' question posted as Major on a false premise.",
+    "certaintyCap": 3,
+    "maxTier": "minor"
+  }
+}

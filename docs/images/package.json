@@ -1,0 +1,11 @@
+{
+  "name": "heimdall-architecture-diagram",
+  "private": true,
+  "description": "Generates docs/images/architecture.svg (Excalidraw-style diagram used in the root README)",
+  "scripts": {
+    "build": "node generate-architecture.js architecture.svg"
+  },
+  "dependencies": {
+    "roughjs": "^4.6.6"
+  }
+}

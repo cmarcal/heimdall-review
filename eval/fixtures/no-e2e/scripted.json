@@ -1,0 +1,17 @@
+{
+  "script": {
+    "e2e-tests": "[{\"file\":\"src/checkout.js\",\"line\":4,\"title\":\"New /checkout endpoint has no e2e test\",\"evidenceQuote\":\"app.post('/checkout', async (req, res) => {\",\"why\":\"The repo ships a Playwright suite (tests/e2e) and the ticket requires coverage, but no e2e spec was added for this money path.\",\"suggestion\":\"Add tests/e2e/checkout.spec.ts covering a successful order and a validation failure.\",\"impact\":5,\"certainty\":7,\"blastRadius\":6}]",
+    "verifier": "[{\"file\":\"src/checkout.js\",\"line\":4,\"title\":\"New /checkout endpoint has no e2e test\",\"evidenceQuote\":\"app.post('/checkout', async (req, res) => {\",\"why\":\"The repo ships a Playwright suite (tests/e2e) and the ticket requires coverage, but no e2e spec was added for this money path.\",\"suggestion\":\"Add tests/e2e/checkout.spec.ts covering a successful order and a validation failure.\",\"impact\":5,\"certainty\":7,\"blastRadius\":6,\"status\":\"keep\",\"verifiedEvidence\":\"app.post('/checkout', async (req, res) => {\"}]",
+    "security": "[]",
+    "requirements": "[]",
+    "architecture": "[]",
+    "regression": "[]",
+    "performance": "[]",
+    "consolidator": "@echo-groups",
+    "gap-check": "{\"clean\":true}"
+  },
+  "models": {
+    "e2e-tests": { "model": "scripted:standard", "capability": "standard" },
+    "verifier": { "model": "scripted:high", "capability": "high" }
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "repo": "acme/shop",
+  "pr": {
+    "number": 42,
+    "title": "Add search page",
+    "body": "Adds a /search route. Closes #10",
+    "author": "dev",
+    "url": "https://github.com/acme/shop/pull/42",
+    "headRef": "feat/search",
+    "baseRef": "main",
+    "headSha": "abc123"
+  },
+  "ticket": {
+    "number": 10,
+    "title": "Search page",
+    "body": "Show search results for a query string.",
+    "url": "https://github.com/acme/shop/issues/10"
+  },
+  "ticketSource": "body"
+}

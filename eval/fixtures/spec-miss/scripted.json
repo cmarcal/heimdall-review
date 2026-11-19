@@ -1,0 +1,17 @@
+{
+  "script": {
+    "requirements": "[{\"file\":\"src/items.js\",\"line\":2,\"title\":\"Ticket requires pagination + limit cap; endpoint returns the whole table\",\"evidenceQuote\":\"const rows = await db.all('SELECT * FROM items');\",\"why\":\"Issue #8 mandates ?page/?limit with a limit cap of 100 and a 400 on over-cap; this returns every row, satisfying no acceptance criterion.\",\"suggestion\":\"Read page/limit (default 20), reject limit>100 with 400, and SELECT with LIMIT/OFFSET.\",\"impact\":7,\"certainty\":9,\"blastRadius\":6}]",
+    "verifier": "[{\"file\":\"src/items.js\",\"line\":2,\"title\":\"Ticket requires pagination + limit cap; endpoint returns the whole table\",\"evidenceQuote\":\"const rows = await db.all('SELECT * FROM items');\",\"why\":\"Issue #8 mandates ?page/?limit with a limit cap of 100 and a 400 on over-cap; this returns every row, satisfying no acceptance criterion.\",\"suggestion\":\"Read page/limit (default 20), reject limit>100 with 400, and SELECT with LIMIT/OFFSET.\",\"impact\":7,\"certainty\":9,\"blastRadius\":6,\"status\":\"keep\",\"verifiedEvidence\":\"const rows = await db.all('SELECT * FROM items');\"}]",
+    "security": "[]",
+    "e2e-tests": "[]",
+    "architecture": "[]",
+    "regression": "[]",
+    "performance": "[]",
+    "consolidator": "@echo-groups",
+    "gap-check": "{\"clean\":true}"
+  },
+  "models": {
+    "requirements": { "model": "scripted:high", "capability": "high" },
+    "verifier": { "model": "scripted:high", "capability": "high" }
+  }
+}

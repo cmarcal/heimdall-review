@@ -1,0 +1,20 @@
+{
+  "repo": "acme/storefront",
+  "pr": {
+    "number": 31,
+    "title": "Add checkout endpoint",
+    "body": "POST /checkout creates an order. Repo has a Playwright e2e suite under tests/e2e. Closes #30",
+    "author": "dev",
+    "url": "https://github.com/acme/storefront/pull/31",
+    "headRef": "feat/checkout",
+    "baseRef": "main",
+    "headSha": "f00d001"
+  },
+  "ticket": {
+    "number": 30,
+    "title": "Checkout flow",
+    "body": "Add POST /checkout. Must be covered by the existing e2e suite.",
+    "url": "https://github.com/acme/storefront/issues/30"
+  },
+  "ticketSource": "body"
+}

@@ -1,0 +1,6 @@
+{
+  "diff": "diff --git a/src/server.js b/src/server.js\nnew file mode 100644\nindex 0000000..1111111\n--- /dev/null\n+++ b/src/server.js\n@@ -0,0 +1,9 @@\n+const express = require('express');\n+const app = express();\n+\n+app.get('/search', (req, res) => {\n+  const q = req.query.q;\n+  res.send('<h1>Results for ' + q + '</h1>');\n+});\n+\n+app.listen(3000);\n",
+  "contents": {
+    "src/server.js": "const express = require('express');\nconst app = express();\n\napp.get('/search', (req, res) => {\n  const q = req.query.q;\n  res.send('<h1>Results for ' + q + '</h1>');\n});\n\napp.listen(3000);\n"
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "trueFindings": [
+    { "agent": "regression", "file": "src/service.js", "line": 1, "tolerance": 2, "note": "phantom import: parseV2 was removed from util.js in this same PR" }
+  ],
+  "decoys": [
+    { "file": "src/util.js", "line": 1, "tolerance": 1, "note": "parseV1 is intact and fine — flagging it would be noise" }
+  ]
+}
