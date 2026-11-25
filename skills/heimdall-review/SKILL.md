@@ -58,7 +58,8 @@ node "$SKILL_DIR/scripts/fetch-context.mjs" "$REPO" "$PR" "$WORK"
 It writes: `pr.json`, `diff.patch`, `files.json` (changed files + caps),
 `skipped.json` (cut files), `files/<path>` (head content), `comments.json`
 (+ `threadsTrusted`), `ticket.json`, `specs.json`, `manifest.json`,
-`docs/<agent>.json`. Read `pr.json`, `files.json`, `skipped.json`,
+`instructions.json` (the repo's own agent-instruction files: AGENTS.md, Cursor
+rules, ...), `docs/<agent>.json`. Read `pr.json`, `files.json`, `skipped.json`,
 `ticket.json` before continuing. If the script fails, stop and report — do not
 hand-fetch with ad-hoc gh calls.
 
@@ -77,6 +78,7 @@ subagent with exactly this brief (fill the paths):
 > - PR: `$WORK/pr.json`
 > - Ticket (or the "unverified" note): `$WORK/ticket.json`
 > - Specs: `$WORK/specs.json` · your repo docs: `$WORK/docs/<agent>.json`
+> - Repo agent instructions (citable standards): `$WORK/instructions.json`
 > - Existing PR comments (do not repeat them): `$WORK/comments.json`
 > - The diff: `$WORK/diff.patch`; full head content per file in `$WORK/files/`
 > - Only these files are in scope: <list from files.json>

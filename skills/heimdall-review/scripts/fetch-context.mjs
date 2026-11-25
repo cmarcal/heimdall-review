@@ -263,10 +263,19 @@ writeFileSync(path.join(OUT, 'specs.json'), JSON.stringify(specs, null, 2));
 const AGENTS = ['security', 'requirements', 'e2e-tests', 'architecture', 'regression', 'performance', 'standards'];
 // Mirror of src/lib/manifest.ts DEFAULT_DOCS — docs an agent reads even when
 // the repo ships no .pr-review.json. [] in the manifest => discover nothing.
+// AGENTS.md/CLAUDE.md are NOT here: the shared instruction section below already
+// delivers every agent's instruction files.
 const DEFAULT_DOCS = {
   security: [], requirements: [], 'e2e-tests': [], architecture: [], regression: [], performance: [],
-  standards: ['CONTRIBUTING.md', 'CODING_STANDARDS.md', 'AGENTS.md', 'CLAUDE.md', 'docs/standards/**'],
+  standards: ['CONTRIBUTING.md', 'CODING_STANDARDS.md', 'docs/standards/**'],
 };
+// Mirror of src/lib/manifest.ts AGENT_INSTRUCTION_PATTERNS + instructions.ts caps.
+const AGENT_INSTRUCTION_PATTERNS = [
+  'AGENTS.md', 'CLAUDE.md', 'GEMINI.md', '.github/copilot-instructions.md',
+  '.cursorrules', '.cursor/rules/**', '.qodo/agents/**', '**/AGENTS.md', '**/CLAUDE.md',
+];
+const INSTRUCTIONS_BUDGET = 30_000;
+const INSTRUCTIONS_MAX_FILES = 12;
 let docBudget = DOC_BUDGET;
 for (const agent of AGENTS) {
   const patterns = manifest.agents?.[agent]?.docs ?? DEFAULT_DOCS[agent] ?? [];
@@ -285,12 +294,39 @@ for (const agent of AGENTS) {
   writeFileSync(path.join(OUT, 'docs', `${agent}.json`), JSON.stringify(docs, null, 2));
 }
 
+// --- repo agent instructions (AGENTS.md, Cursor rules, ...) for all agents --
+// Mirror of src/lib/instructions.ts: match patterns, drop skip globs, dedupe,
+// order root-level first then nested (alphabetical), cap count and total chars.
+let instructionPatterns = manifest.agentInstructions ?? AGENT_INSTRUCTION_PATTERNS;
+const instructions = [];
+if (instructionPatterns !== false) {
+  const seen = new Set();
+  for (const p of tree) {
+    if (!instructionPatterns.some((g) => globMatch(g, p))) continue;
+    if (skip.some((g) => globMatch(g, p))) continue;
+    seen.add(p);
+  }
+  const depth = (p) => (p.includes('/') ? 1 : 0);
+  const selected = [...seen].sort((a, b) => depth(a) - depth(b) || a.localeCompare(b)).slice(0, INSTRUCTIONS_MAX_FILES);
+  let instrBudget = INSTRUCTIONS_BUDGET;
+  for (const p of selected) {
+    if (instrBudget <= 0) break;
+    const c = await gh(['api', `repos/${repo}/contents/${p}?ref=${pr.headSha}`, '-H', 'Accept: application/vnd.github.raw'], { allowFail: true });
+    if (!c) continue;
+    let cut = c.length > FILE_CAP ? c.slice(0, FILE_CAP) : c;
+    if (cut.length > instrBudget) cut = cut.slice(0, instrBudget);
+    instructions.push({ path: p, content: cut });
+    instrBudget -= cut.length;
+  }
+}
+writeFileSync(path.join(OUT, 'instructions.json'), JSON.stringify(instructions, null, 2));
+
 const enabled = AGENTS.filter((a) => manifest.agents?.[a]?.enabled !== false);
 console.log(JSON.stringify({
   repo, pr: pr.number, title: pr.title, headSha: pr.headSha.slice(0, 8),
   filesInScope: filesMeta.length, skipped: skipped.length,
   truncatedFiles: filesMeta.filter((f) => f.truncated).map((f) => f.path),
   ticket: ticket ? `#${ticket.number} via ${ticketSource}` : 'NONE — requirements unverified',
-  specs: specs.length, threadsTrusted, agentsEnabled: enabled,
+  specs: specs.length, agentInstructions: instructions.length, threadsTrusted, agentsEnabled: enabled,
   out: OUT,
 }, null, 2));
