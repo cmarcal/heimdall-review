@@ -238,7 +238,16 @@ export class GitHubSource implements ReviewSource {
 
   private async loadAgentInstructions(ref: string, manifest: Manifest): Promise<SpecFile[]> {
     if (manifest.agentInstructions === false) return [];
-    const tree = await ghTree(this.gh, this.repo, ref);
+    // Instruction files sit anywhere in the tree, including nested (.github/,
+    // .cursor/rules/, per-package AGENTS.md), so fetch recursively and read the
+    // full payload. The shared ghTree helper is root-only and cannot see them;
+    // this mirrors skills/heimdall-review/scripts/fetch-context.mjs.
+    const tree = await ghJson<{ tree?: { path: string; type: string }[] }>(
+      this.gh,
+      ['api', `repos/${this.repo}/git/trees/${ref}?recursive=1`],
+    )
+      .then((d) => (d.tree ?? []).filter((t) => t.type === 'blob').map((t) => t.path))
+      .catch(() => [] as string[]);
     const paths = selectAgentInstructionPaths(tree, manifest.agentInstructions, manifest.skip);
     return assembleAgentInstructions(paths, (p) => ghReadFile(this.gh, this.repo, p, ref));
   }

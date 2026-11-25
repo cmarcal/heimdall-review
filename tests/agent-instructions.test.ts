@@ -6,6 +6,8 @@ import {
   selectAgentInstructionPaths,
 } from '../src/lib/instructions.js';
 import { AGENT_INSTRUCTION_PATTERNS, defaultManifest } from '../src/lib/manifest.js';
+import { GitHubSource } from '../src/sources/github.js';
+import type { GhRunner } from '../src/lib/gh.js';
 
 // Convention detection: which repo files count as agent instructions, in what
 // order, and how the per-file / total caps bite. Unit over a fake tree — no gh.
@@ -109,5 +111,49 @@ describe('assembleAgentInstructions', () => {
 
   it('is empty when no paths were selected', async () => {
     expect(await assembleAgentInstructions([], reader({}))).toEqual([]);
+  });
+});
+
+describe('GitHubSource.loadAgentInstructions', () => {
+  // The CLI must scan the RECURSIVE tree (nested instruction files), not the
+  // root-only ghTree. The fake gh only answers a `?recursive=1` tree query, so
+  // this fails if the wiring ever reverts to the root-only helper.
+  it('reads root and nested instruction files from the recursive tree', async () => {
+    const gh: GhRunner = async (args) => {
+      const key = args.join(' ');
+      if (key.includes('/git/trees/') && key.includes('recursive=1')) {
+        return JSON.stringify({
+          tree: [
+            { path: 'AGENTS.md', type: 'blob' },
+            { path: 'packages/x/AGENTS.md', type: 'blob' },
+            { path: 'README.md', type: 'blob' },
+            { path: 'src', type: 'tree' },
+          ],
+        });
+      }
+      if (key.includes('/contents/')) {
+        const p = key.match(/contents\/(.+?)\?ref=/)?.[1] ?? '';
+        return `content-of:${p}`;
+      }
+      return '';
+    };
+    const src = new GitHubSource('acme/x', 1, gh);
+    const got = await (src as unknown as {
+      loadAgentInstructions(ref: string, manifest: ReturnType<typeof defaultManifest>): Promise<{ path: string; content: string }[]>;
+    }).loadAgentInstructions('sha', defaultManifest());
+    expect(got.map((f) => f.path)).toEqual(['AGENTS.md', 'packages/x/AGENTS.md']);
+    expect(got[0]?.content).toContain('content-of:AGENTS.md');
+  });
+
+  it('detects nothing when agentInstructions is false', async () => {
+    const gh: GhRunner = async () => {
+      throw new Error('must not fetch a tree when detection is off');
+    };
+    const src = new GitHubSource('acme/x', 1, gh);
+    const manifest = { ...defaultManifest(), agentInstructions: false as const };
+    const got = await (src as unknown as {
+      loadAgentInstructions(ref: string, manifest: typeof manifest): Promise<unknown[]>;
+    }).loadAgentInstructions('sha', manifest);
+    expect(got).toEqual([]);
   });
 });
