@@ -41,6 +41,7 @@ spec globs, `AGENT_INSTRUCTION_PATTERNS`).
   only when its `verifiedEvidence` appears verbatim in the head file content. The
   harness checks this, not the model.
 - A finding needs a real quote. No quote, no finding.
+- The quote gate proves the problem, never the fix. Evidence is gated deterministically; `suggestion` is not, and authors paste it verbatim — so prompts require a fix to be provably correct from the provided code or phrased as a direction, never an unverified command. A fix that reaches files the diff did not touch is phrased as a follow-up.
 - Nothing posts to GitHub without `--post` (CLI) or explicit confirmation (skill).
   Dry-run is the default state.
 - Declared coverage beats fake coverage. Failed specialists, dropped findings, and

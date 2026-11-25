@@ -123,7 +123,12 @@ itself: `gh api "search/code?q=<symbol>+repo:<owner>/<repo>"` or fetch the
 specific unchanged file (`gh api repos/<owner>/<repo>/contents/<path>` — take
 `content` base64-decoded) to locate the call sites, lifecycle order or config
 the finding depends on. Copy any file that decides the answer into
-`$WORK/files/<path>` — quotes verify against that folder. Then:
+`$WORK/files/<path>` — quotes verify against that folder. When the question
+depends on a **sibling repository the PR itself names** (a chart,
+deploy-config, or consumer repo referenced in the description or ticket) and it
+is readable, run the same contents fetch against that repo — a blind spot is
+only blind if you did not look; quote the deciding file in the answer. Probe
+only a repo the PR explicitly references, never roam the org. Then:
 
 - the probe **disproves** the concern → delete the finding from that agent's
   `agents/<agent>.verified.json`, re-run Step 4, and count it as dropped in
@@ -144,7 +149,10 @@ when the answer would have been "keep".
    finding, `mergedAgents` lists all agents, highest tier wins.
 2. Rewrite each survivor's PR comment in the voice of `prompts/style.md`:
    problem → evidence as its own fenced code block → why it matters here →
-   concrete fix. ≤ 80 prose words. A code quote never sits inside a sentence:
+   a fix safe to apply as written — when one cannot be proven, the
+   direction of the change instead; anything reaching files the diff did not
+   touch is phrased as a follow-up. ≤ 80 prose words. A code quote never sits
+   inside a sentence:
    short references in backticks, multi-line quotes fenced. No severity word
    (the harness adds the tier prefix). American English in prose
    (`initialize`, `behavior`) — re-read every comment for typos before
