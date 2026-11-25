@@ -1,0 +1,20 @@
+{
+  "repo": "acme/api",
+  "pr": {
+    "number": 7,
+    "title": "Add user lookup route",
+    "body": "Adds a GET /user route.",
+    "author": "dev",
+    "url": "https://github.com/acme/api/pull/7",
+    "headRef": "feat/user",
+    "baseRef": "main",
+    "headSha": "aaa111"
+  },
+  "ticket": null,
+  "agentInstructions": [
+    {
+      "path": "AGENTS.md",
+      "content": "# Repo rules\n\nEvery exported handler must validate input with zod before it is used."
+    }
+  ]
+}

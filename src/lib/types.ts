@@ -83,6 +83,11 @@ export interface Manifest {
   maxTotalChangedLines: number;
   skip: string[];
   specs: string[];
+  /**
+   * Glob patterns for the repo's own AI-tool instruction files (AGENTS.md,
+   * CLAUDE.md, Cursor rules, ...). `false` turns detection off.
+   */
+  agentInstructions: string[] | false;
   agents: Record<AgentName, { enabled: boolean; docs: string[] }>;
 }
 
@@ -96,6 +101,8 @@ export interface ReviewContext {
   requirementsVerified: boolean;
   ticketSource: 'flag' | 'body' | 'commit' | 'branch' | 'none';
   specs: SpecFile[];
+  /** the repo's own AI-tool instruction files (AGENTS.md, Cursor rules, ...) */
+  agentInstructions: SpecFile[];
   comments: ExistingComment[];
   threadsTrusted: boolean;
   manifest: Manifest;

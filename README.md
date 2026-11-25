@@ -182,6 +182,19 @@ to set the budget, skip globs, spec-file locations, which specialists are on, an
 the repo docs each specialist should read (`docs/security.md`, testing guide, ADRs…).
 Zero-config still works — sensible defaults.
 
+### Heimdall reads the repo's agent instructions
+
+Beyond the docs you list, Heimdall finds the repo's own AI-tool rule files by
+convention and gives them to every specialist as a citable standard: `AGENTS.md`,
+`CLAUDE.md`, `GEMINI.md`, `.github/copilot-instructions.md`, `.cursorrules`,
+`.cursor/rules/**`, `.qodo/agents/**`, plus nested `AGENTS.md` and `CLAUDE.md`.
+Files a skip glob catches (for example under `node_modules`) are ignored.
+Detection is capped at 12 files and 30k characters, and the run log declares what
+it found (`agent instructions: …`, or `none detected`).
+
+Set `agentInstructions` in `.pr-review.json` to your own glob list to override the
+defaults, or `false` to turn detection off.
+
 ---
 
 ## Results
