@@ -59,21 +59,28 @@ export function buildContextPack(
     );
   }
 
-  if (ctx.specs.length) {
-    const specs = ctx.specs.map((s) => `### ${s.path}\n${s.content}`).join('\n\n');
-    head.push(`\n## Spec files\n${specs}`);
-  }
+  const specsSection = ctx.specs.length
+    ? `\n## Spec files\n${ctx.specs.map((s) => `### ${s.path}\n${s.content}`).join('\n\n')}`
+    : '';
 
-  if (ctx.comments.length) {
-    const lines = ctx.comments.map((c) => {
-      const where = c.file ? ` (${c.file}:${c.line ?? '?'}${c.resolved ? ', resolved thread' : ''})` : '';
-      const trust = ctx.threadsTrusted || c.resolved === undefined ? '' : ' (resolution state unknown)';
-      return `- ${c.author}${where}${trust}: ${truncate(c.body.replace(/\s+/g, ' '), 400)}`;
-    });
-    head.push(
-      `\n## Existing PR comments — respect them. Do not repeat what a human already raised or dismissed.\n${lines.join('\n')}`,
-    );
-  }
+  // The repo's own AI-tool rule files: a citable standard for every specialist,
+  // placed right after the specs.
+  const instructions = ctx.agentInstructions ?? [];
+  const instructionsSection = instructions.length
+    ? `\n## Repo agent instructions — the repo's own rules for AI tools and contributors. Cite them like documented standards.\n${instructions
+        .map((s) => `### ${s.path}\n${s.content}`)
+        .join('\n\n')}`
+    : '';
+
+  const commentsSection = ctx.comments.length
+    ? `\n## Existing PR comments — respect them. Do not repeat what a human already raised or dismissed.\n${ctx.comments
+        .map((c) => {
+          const where = c.file ? ` (${c.file}:${c.line ?? '?'}${c.resolved ? ', resolved thread' : ''})` : '';
+          const trust = ctx.threadsTrusted || c.resolved === undefined ? '' : ' (resolution state unknown)';
+          return `- ${c.author}${where}${trust}: ${truncate(c.body.replace(/\s+/g, ' '), 400)}`;
+        })
+        .join('\n')}`
+    : '';
 
   const agentDocs = ctx.docs.filter((d) => d.agent === agent);
   const docsSection = agentDocs.length
@@ -96,23 +103,28 @@ export function buildContextPack(
       })
       .join('\n\n');
 
-  const essential = head.join('\n');
+  const top = head.join('\n');
   let truncated = false;
 
-  // Cut in order of least trustworthiness: repo docs first, then specs.
-  let pack = `${essential}${docsSection}\n${filesSection}`;
+  // Cut in order of least trustworthiness when the window is tight: per-agent
+  // repo docs first, then agent instructions, then specs cut last (the spec is
+  // the requirements axis's source of truth, so it is the last thing to go).
+  const withDocs = `${top}${specsSection}${instructionsSection}${commentsSection}${docsSection}\n${filesSection}`;
+  const withoutDocs = `${top}${specsSection}${instructionsSection}${commentsSection}\n${filesSection}`;
+  const withoutInstructions = `${top}${specsSection}${commentsSection}\n${filesSection}`;
+  const bare = `${top}${commentsSection}\n${filesSection}`;
+
+  let pack = withDocs;
   if (pack.length > maxChars) {
-    pack = `${essential}\n${filesSection}`;
+    pack = withoutDocs;
     truncated = true;
   }
   if (pack.length > maxChars) {
-    const specsIdx = pack.indexOf('\n## Spec files');
-    if (specsIdx >= 0) {
-      const filesIdx = pack.indexOf('\n## Changed files');
-      pack = pack.slice(0, specsIdx) + pack.slice(filesIdx);
-    } else {
-      pack = pack.slice(0, maxChars);
-    }
+    pack = withoutInstructions;
+    truncated = true;
+  }
+  if (pack.length > maxChars) {
+    pack = bare;
     truncated = true;
   }
   if (pack.length > maxChars) {
