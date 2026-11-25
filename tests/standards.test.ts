@@ -25,7 +25,7 @@ describe('standards specialist (seventh axis)', () => {
   it('auto-discovers the classic standards docs with no manifest present', () => {
     const docs = defaultManifest().agents.standards.docs;
     expect(docs).toEqual(
-      expect.arrayContaining(['CONTRIBUTING.md', 'CODING_STANDARDS.md', 'AGENTS.md', 'CLAUDE.md']),
+      expect.arrayContaining(['CONTRIBUTING.md', 'CODING_STANDARDS.md', 'docs/standards/**']),
     );
   });
 
