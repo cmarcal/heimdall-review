@@ -3,7 +3,7 @@ import path from 'node:path';
 import { parsePatch, applyCaps } from '../lib/diff.js';
 import { parseManifest, defaultManifest } from '../lib/manifest.js';
 import { parseLinkedIssue } from '../lib/ticket.js';
-import type { PrInfo, ReviewContext, TicketRef } from '../lib/types.js';
+import type { PrInfo, ReviewContext, SpecFile, TicketRef } from '../lib/types.js';
 import type { ReviewSource } from './source.js';
 
 export interface FixtureMeta {
@@ -14,6 +14,8 @@ export interface FixtureMeta {
   ticketSource?: 'body' | 'commit' | 'branch' | 'none';
   manifest?: Partial<import('../lib/types.js').Manifest>;
   comments?: ReviewContext['comments'];
+  /** repo agent-instruction files for fixtures that exercise that section */
+  agentInstructions?: SpecFile[];
 }
 
 export interface FixturePr {
@@ -68,6 +70,7 @@ export class FixtureSource implements ReviewSource {
       requirementsVerified,
       ticketSource: ticket ? link.source : 'none',
       specs: [],
+      agentInstructions: meta.agentInstructions ?? [],
       comments: meta.comments ?? [],
       threadsTrusted: true,
       manifest: parseManifest(JSON.stringify(manifest)),

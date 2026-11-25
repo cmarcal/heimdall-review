@@ -3,6 +3,7 @@ import { parsePatch, applyCaps } from '../lib/diff.js';
 import { parseManifest, defaultManifest } from '../lib/manifest.js';
 import { parseLinkedIssue } from '../lib/ticket.js';
 import { globMatch, truncate } from '../lib/util.js';
+import { assembleAgentInstructions, selectAgentInstructionPaths } from '../lib/instructions.js';
 import type {
   AgentName,
   ExistingComment,
@@ -116,6 +117,7 @@ export class GitHubSource implements ReviewSource {
     const { comments, threadsTrusted } = await this.loadComments(view, pr);
     const specs = await this.loadSpecs(pr.headSha, manifest);
     const docs = await this.loadDocs(pr.headSha, manifest);
+    const agentInstructions = await this.loadAgentInstructions(pr.headSha, manifest);
 
     return {
       repo: this.repo,
@@ -127,6 +129,7 @@ export class GitHubSource implements ReviewSource {
       requirementsVerified,
       ticketSource: ticket ? link.source : 'none',
       specs,
+      agentInstructions,
       comments,
       threadsTrusted,
       manifest,
@@ -231,6 +234,13 @@ export class GitHubSource implements ReviewSource {
       budget -= cut.length;
     }
     return specs;
+  }
+
+  private async loadAgentInstructions(ref: string, manifest: Manifest): Promise<SpecFile[]> {
+    if (manifest.agentInstructions === false) return [];
+    const tree = await ghTree(this.gh, this.repo, ref);
+    const paths = selectAgentInstructionPaths(tree, manifest.agentInstructions, manifest.skip);
+    return assembleAgentInstructions(paths, (p) => ghReadFile(this.gh, this.repo, p, ref));
   }
 
   private async loadDocs(ref: string, manifest: Manifest): Promise<ReviewContext['docs']> {

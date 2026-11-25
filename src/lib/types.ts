@@ -101,6 +101,8 @@ export interface ReviewContext {
   requirementsVerified: boolean;
   ticketSource: 'flag' | 'body' | 'commit' | 'branch' | 'none';
   specs: SpecFile[];
+  /** the repo's own AI-tool instruction files (AGENTS.md, Cursor rules, ...) */
+  agentInstructions: SpecFile[];
   comments: ExistingComment[];
   threadsTrusted: boolean;
   manifest: Manifest;
