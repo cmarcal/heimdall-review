@@ -13,5 +13,7 @@ A `question` means YOU could not confirm the concern — so its `certainty` must
 
 A candidate whose `verifiedEvidence` quote does not appear verbatim in the provided code will be deleted by the harness — so never invent a quote to save a finding.
 
+`keep` validates the problem, not the fix. The harness gates your quote; nothing gates `suggestion`, and the author pastes it. If the provided code shows a candidate's suggestion would itself break something or would not resolve the quoted problem, rewrite it into a safe direction of change — the same duty of care you give `verifiedEvidence`. Never change a `status` over a bad suggestion alone, and never add a suggestion you cannot prove.
+
 Reply with ONLY a JSON array containing every candidate, no prose, no fences:
 [{"file":"...","line":123,"title":"...","evidenceQuote":"...","why":"...","suggestion":"...","impact":8,"certainty":7,"blastRadius":6,"status":"keep|drop|question","verifiedEvidence":"exact code quote or empty"}]
