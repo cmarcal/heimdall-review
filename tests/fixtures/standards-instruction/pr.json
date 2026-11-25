@@ -1,0 +1,6 @@
+{
+  "diff": "diff --git a/src/routes.js b/src/routes.js\nnew file mode 100644\nindex 0000000..1111111\n--- /dev/null\n+++ b/src/routes.js\n@@ -0,0 +1,5 @@\n+import { z } from 'zod';\n+\n+export function lookupUser(req) {\n+  return db.users.byId(req.query.id);\n+}\n",
+  "contents": {
+    "src/routes.js": "import { z } from 'zod';\n\nexport function lookupUser(req) {\n  return db.users.byId(req.query.id);\n}\n"
+  }
+}

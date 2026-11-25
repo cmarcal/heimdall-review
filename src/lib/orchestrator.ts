@@ -63,6 +63,9 @@ export async function runReview(opts: OrchestratorOptions): Promise<Orchestrator
   if (ctx.ticket) log(`ticket #${ctx.ticket.number} via ${ctx.ticketSource}`);
   else log('no linked ticket — requirements UNVERIFIED (declared, not guessed)');
 
+  const instructionPaths = (ctx.agentInstructions ?? []).map((f) => f.path);
+  log(instructionPaths.length ? `agent instructions: ${instructionPaths.join(', ')}` : 'agent instructions: none detected');
+
   const cfg = loadModelsConfig(path.join(CONFIG_DIR, 'models.json'));
   if (opts.preset) cfg.preset = opts.preset;
   else if (ctx.manifest.preset) cfg.preset = ctx.manifest.preset;
