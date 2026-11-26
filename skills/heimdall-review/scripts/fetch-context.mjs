@@ -260,6 +260,54 @@ for (const p of tree.filter((p) => specPatterns.some((g) => globMatch(g, p)))) {
 }
 writeFileSync(path.join(OUT, 'specs.json'), JSON.stringify(specs, null, 2));
 
+// --- migrations naming tables the diff references — schema facts ------------
+// Mirror of src/lib/schema.ts + the manifest `migrations` globs. A constraint
+// claim (e.g. "this column is not unique") must cite these files or degrade to
+// a question; the fetch itself is deterministic, no model involved.
+const SQL_NOISE = new Set(['select', 'set', 'values', 'unnest', 'lateral', 'only', 'exists', 'rows', 'range',
+  'generate_series', 'jsonb_array_elements', 'jsonb_each', 'regexp_split_to_table', 'table', 'index', 'if', 'not', 'final', 'public']);
+function extractTableRefs(text) {
+  const names = new Set();
+  for (const re of [
+    /\b(?:from|join|into|update)\s+(?:if\s+(?:not\s+)?exists\s+)?([a-zA-Z_][\w$]*(?:\.[a-zA-Z_][\w$]*){0,2})/gi,
+    /\b(?:create|drop|alter|truncate)\s+(?:\w+\s+)*?table\s+(?:if\s+(?:not\s+)?exists\s+)?([a-zA-Z_][\w$]*(?:\.[a-zA-Z_][\w$]*){0,2})/gi,
+  ]) {
+    let m;
+    while ((m = re.exec(text)) !== null) {
+      for (const part of m[1].toLowerCase().split('.')) {
+        if (part.length < 3 || !/^[a-z_][a-z0-9_]*$/.test(part) || SQL_NOISE.has(part)) continue;
+        names.add(part);
+      }
+    }
+  }
+  return [...names].sort();
+}
+const MIGRATION_GLOBS = ['**/*migrat*/**']; // mirror of src/lib/manifest.ts MIGRATION_GLOBS
+const MIGRATION_BUDGET = 30_000;
+const MIGRATION_MAX_FILES = 20;
+const migrationGlobs = manifest.migrations ?? MIGRATION_GLOBS;
+const tables = extractTableRefs(diffText);
+const inDiff = new Set(review.map((f) => f.path));
+const migrationPaths = tables.length
+  ? tree
+      .filter((p) => migrationGlobs.some((g) => globMatch(g, p)))
+      .filter((p) => !skip.some((g) => globMatch(g, p)))
+      .filter((p) => tables.some((t) => p.toLowerCase().includes(t)))
+      .filter((p) => !inDiff.has(p))
+      .sort()
+  : [];
+let migBudget = MIGRATION_BUDGET;
+const migrations = [];
+for (const p of migrationPaths.slice(0, MIGRATION_MAX_FILES)) {
+  if (migBudget <= 0) break;
+  const c = await gh(['api', `repos/${repo}/contents/${p}?ref=${pr.headSha}`, '-H', 'Accept: application/vnd.github.raw'], { allowFail: true });
+  if (!c) continue;
+  const cut = c.length > migBudget ? c.slice(0, migBudget) : c;
+  migrations.push({ path: p, content: cut });
+  migBudget -= cut.length;
+}
+writeFileSync(path.join(OUT, 'migrations.json'), JSON.stringify({ tables, migrations }, null, 2));
+
 const AGENTS = ['security', 'requirements', 'e2e-tests', 'architecture', 'regression', 'performance', 'standards'];
 // Mirror of src/lib/manifest.ts DEFAULT_DOCS — docs an agent reads even when
 // the repo ships no .pr-review.json. [] in the manifest => discover nothing.
@@ -327,6 +375,8 @@ console.log(JSON.stringify({
   filesInScope: filesMeta.length, skipped: skipped.length,
   truncatedFiles: filesMeta.filter((f) => f.truncated).map((f) => f.path),
   ticket: ticket ? `#${ticket.number} via ${ticketSource}` : 'NONE — requirements unverified',
-  specs: specs.length, agentInstructions: instructions.length, threadsTrusted, agentsEnabled: enabled,
+  specs: specs.length, agentInstructions: instructions.length,
+  migrationTables: tables.length, migrations: migrations.length,
+  threadsTrusted, agentsEnabled: enabled,
   out: OUT,
 }, null, 2));
