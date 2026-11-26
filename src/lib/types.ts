@@ -88,6 +88,12 @@ export interface Manifest {
    * CLAUDE.md, Cursor rules, ...). `false` turns detection off.
    */
   agentInstructions: string[] | false;
+  /**
+   * Glob patterns for migration directories. When the diff references SQL
+   * tables, migrations naming those tables are fetched as schema facts so a
+   * constraint claim must cite them or downgrade to a question.
+   */
+  migrations: string[];
   agents: Record<AgentName, { enabled: boolean; docs: string[] }>;
 }
 
@@ -108,6 +114,8 @@ export interface ReviewContext {
   manifest: Manifest;
   /** repo docs declared in the manifest, keyed by agent */
   docs: { agent: AgentName; path: string; content: string }[];
+  /** migrations naming tables the diff references — schema facts, not diff files */
+  migrations?: SpecFile[];
   /** true when the context pack had to be truncated for the model window */
   contextTruncated: boolean;
 }
