@@ -1,0 +1,20 @@
+{
+  "repo": "acme/inventory",
+  "pr": {
+    "number": 4,
+    "title": "Apply restock events to stock levels",
+    "body": "Consumes a restock event and adds its quantity to the product's stock row. Refs #2",
+    "author": "dev",
+    "url": "https://github.com/acme/inventory/pull/4",
+    "headRef": "feat/apply-restock",
+    "baseRef": "main",
+    "headSha": "abc1234"
+  },
+  "ticket": null,
+  "migrations": [
+    {
+      "path": "db/migrations/0007_create_products.up.sql",
+      "content": "CREATE TABLE products (\n    product_id uuid NOT NULL,\n    warehouse_id uuid NOT NULL,\n    sku text NOT NULL,\n    CONSTRAINT uq_products_warehouse_id_sku UNIQUE (warehouse_id, sku),\n    PRIMARY KEY (product_id)\n);\n"
+    }
+  ]
+}

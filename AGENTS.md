@@ -11,7 +11,7 @@ quote it from the real code.
 - `npm test` - run the vitest suite in `tests/`.
 - `npm run typecheck` - `tsc --noEmit`. Build is `npm run build`.
 - `npm run heimdall -- eval` - offline eval, no key, deterministic. It must stay
-  at recall 5/5, precision 100%, 0 hallucinations posted.
+  at recall 6/6, precision 100%, 0 hallucinations posted.
 - `npm run heimdall -- review <pr> --repo owner/repo` - review a PR. Dry-run is
   the default and posts nothing; add `--post` to publish.
 - `npm run install-skill` / `npm run uninstall-skill` - link the `/heimdall-review`
@@ -50,3 +50,9 @@ names tables, the source fetches the migrations naming them as schema facts
   files cut by caps are always reported, never hidden.
 - Prose is American English, plain and specific. Do not put a severity word in a
   comment body; the harness adds the tier prefix.
+- Examples are fiction. Fixtures, prompts, docs and test SQL may use only the
+  invented `acme/*` company and the identifiers declared in
+  `config/fixture-vocabulary.json` — never a project name, schema, table, column
+  or PR link from a repository outside this one. `npm test` enforces it as an
+  allowlist; add the invented name to the registry rather than loosening the rule,
+  and never list real names to block them (a denylist publishes what it forbids).

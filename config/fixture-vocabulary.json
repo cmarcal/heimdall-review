@@ -1,0 +1,9 @@
+{
+  "orgs": ["acme"],
+  "repos": ["catalog", "inventory", "orders", "shared", "shop", "storefront"],
+  "schemas": ["core"],
+  "tables": ["audit_log", "items", "orders", "products", "queue", "stock_levels"],
+  "columns": ["customer_name", "id", "on_hand", "order_id", "product_id", "sku", "warehouse_id"],
+  "constraints": ["uq_products_warehouse_id_sku"],
+  "words": ["node_modules"]
+}

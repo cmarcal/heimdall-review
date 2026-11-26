@@ -1,0 +1,6 @@
+{
+  "diff": "diff --git a/services/restock.js b/services/restock.js\nnew file mode 100644\nindex 0000000..1a2b3c4\n--- /dev/null\n+++ b/services/restock.js\n@@ -0,0 +1,18 @@\n+const db = require('../db');\n+\n+// Adds the incoming quantity to one product's stock row.\n+async function applyRestock({ warehouseId, sku, quantity }) {\n+  const rows = await db.query(\n+    'SELECT product_id FROM products WHERE warehouse_id = $1 AND sku = $2',\n+    [warehouseId, sku],\n+  );\n+  const product = rows[0];\n+  if (!product) return null;\n+  await db.query(\n+    'UPDATE stock_levels SET on_hand = on_hand + $2 WHERE product_id = $1',\n+    [product.product_id, quantity],\n+  );\n+  return product.product_id;\n+}\n+\n+module.exports = { applyRestock };\n",
+  "contents": {
+    "services/restock.js": "const db = require('../db');\n\n// Adds the incoming quantity to one product's stock row.\nasync function applyRestock({ warehouseId, sku, quantity }) {\n  const rows = await db.query(\n    'SELECT product_id FROM products WHERE warehouse_id = $1 AND sku = $2',\n    [warehouseId, sku],\n  );\n  const product = rows[0];\n  if (!product) return null;\n  await db.query(\n    'UPDATE stock_levels SET on_hand = on_hand + $2 WHERE product_id = $1',\n    [product.product_id, quantity],\n  );\n  return product.product_id;\n}\n\nmodule.exports = { applyRestock };\n"
+  }
+}

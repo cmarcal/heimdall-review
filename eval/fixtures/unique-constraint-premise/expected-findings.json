@@ -1,0 +1,19 @@
+{
+  "trueFindings": [
+    {
+      "agent": "regression",
+      "file": "services/restock.js",
+      "line": 12,
+      "tolerance": 2,
+      "note": "restock is lost when the product has no stock_levels row: the UPDATE matches zero rows and nothing reports it"
+    }
+  ],
+  "decoys": [
+    {
+      "file": "services/restock.js",
+      "line": 9,
+      "tolerance": 1,
+      "note": "\"sku can repeat, rows[0] may pick the wrong product\" — the packed migration defines UNIQUE (warehouse_id, sku), so pass 2 must drop this premise-refuted candidate"
+    }
+  ]
+}

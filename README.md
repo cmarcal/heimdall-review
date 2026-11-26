@@ -216,17 +216,30 @@ directories if the default (`**/*migrat*/**`) misses your layout.
 
 ### Pipeline correctness (offline eval — `npm run heimdall -- eval`)
 
-Deterministic, no key, runs in CI. Proves find→verify→drop→dedupe→score→consolidate
+Deterministic, no key, runs with `npm test`. Proves find→verify→drop→dedupe→score→consolidate
 is wired correctly and that fabricated quotes are deleted, not posted:
 
 | suite | result |
 |---|---|
-| unit tests | **139 passing** |
-| eval fixtures (5) | **recall 5/5 · precision 100% · hallucinations posted 0** |
+| unit tests | **151 passing** |
+| eval fixtures (6) | **recall 6/6 · precision 100% · hallucinations posted 0** |
 
 Each fixture plants one real bug and a decoy; the security fixture also feeds the
 verifier a KEEP verdict backed by a quote that **is not in the code** — and it is
-dropped.
+dropped. One fixture proves the schema-fact rule the other way: a candidate whose
+premise a migration refutes must die in the verify pass, not post as a question.
+
+### Examples are fiction
+
+Every fixture and every example in this repo is an invented company (`acme/*`)
+with an invented schema. Heimdall gets better by reviewing real private
+repositories, and a real table name pasted into a fixture "as an example"
+publishes somebody's production schema. So the check is an **allowlist**:
+`config/fixture-vocabulary.json` declares the orgs, repos, tables, columns and
+constraint names that fiction may use, and `npm test` fails on anything else — in
+a fixture, a prompt, a doc, or the SQL inside a unit test. Adding an invented
+name to that registry is how you add a fixture; a denylist of real names is never
+the answer, because it publishes what it forbids.
 
 ### Model quality (live eval — the number that actually matters)
 

@@ -1,0 +1,23 @@
+{
+  "script": {
+    "regression": "[{\"file\":\"services/restock.js\",\"line\":12,\"title\":\"Restock quantity is lost when the product has no stock row\",\"evidenceQuote\":\"'UPDATE stock_levels SET on_hand = on_hand + $2 WHERE product_id = $1',\",\"why\":\"The UPDATE only changes an existing stock_levels row, so the first restock of a product without one matches no rows, the quantity disappears, and the function still returns the product id as if it worked.\",\"suggestion\":\"Create the stock row when none exists, or check how many rows the update touched and report the miss instead of returning the product id.\",\"impact\":7,\"certainty\":7,\"blastRadius\":3},{\"file\":\"services/restock.js\",\"line\":9,\"title\":\"A repeated SKU restocks the wrong product\",\"evidenceQuote\":\"const product = rows[0];\",\"why\":\"The claim rests on (warehouse_id, sku) matching more than one product, which would make the first row the wrong target for the restock.\",\"suggestion\":\"Treat more than one match as an error instead of taking the first row.\",\"impact\":8,\"certainty\":8,\"blastRadius\":5}]",
+    "verifier": "[{\"file\":\"services/restock.js\",\"line\":12,\"title\":\"Restock quantity is lost when the product has no stock row\",\"evidenceQuote\":\"'UPDATE stock_levels SET on_hand = on_hand + $2 WHERE product_id = $1',\",\"why\":\"The UPDATE only changes an existing stock_levels row, so the first restock of a product without one matches no rows, the quantity disappears, and the function still returns the product id as if it worked.\",\"suggestion\":\"Create the stock row when none exists, or check how many rows the update touched and report the miss instead of returning the product id.\",\"impact\":7,\"certainty\":7,\"blastRadius\":3,\"status\":\"keep\",\"verifiedEvidence\":\"'UPDATE stock_levels SET on_hand = on_hand + $2 WHERE product_id = $1',\"},{\"file\":\"services/restock.js\",\"line\":9,\"title\":\"A repeated SKU restocks the wrong product\",\"evidenceQuote\":\"const product = rows[0];\",\"why\":\"db/migrations/0007_create_products.up.sql defines CONSTRAINT uq_products_warehouse_id_sku UNIQUE (warehouse_id, sku), so one product per warehouse and SKU: the premise the candidate rests on is refuted by a schema fact outside the diff.\",\"suggestion\":\"Treat more than one match as an error instead of taking the first row.\",\"impact\":8,\"certainty\":8,\"blastRadius\":5,\"status\":\"drop\",\"verifiedEvidence\":\"\"}]",
+    "performance": "[]",
+    "security": "[]",
+    "requirements": "[]",
+    "e2e-tests": "[]",
+    "architecture": "[]",
+    "consolidator": "@echo-groups",
+    "gap-check": "{\"clean\":true}"
+  },
+  "models": {
+    "regression": {
+      "model": "scripted:standard",
+      "capability": "standard"
+    },
+    "verifier": {
+      "model": "scripted:high",
+      "capability": "high"
+    }
+  }
+}
