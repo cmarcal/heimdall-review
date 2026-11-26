@@ -87,6 +87,16 @@ export function buildContextPack(
     ? `\n## Repo docs for your specialty\n${agentDocs.map((d) => `### ${d.path}\n${d.content}`).join('\n\n')}`
     : '';
 
+  // Migrations for tables the diff's SQL names, fetched by the source. A
+  // constraint defined here is a fact: uniqueness/FK claims about these tables
+  // must cite it or become a question about it.
+  const migrations = ctx.migrations ?? [];
+  const migrationsSection = migrations.length
+    ? `\n## Migrations for tables this diff touches — schema facts. A claim that a constraint is absent on these tables must cite a line here; when the deciding migration could live outside these files, ask a question instead of asserting.\n${migrations
+        .map((s) => `### ${s.path}\n${s.content}`)
+        .join('\n\n')}`
+    : '';
+
   const filesSection =
     '\n## Changed files\n' +
     ctx.files
@@ -107,16 +117,22 @@ export function buildContextPack(
   let truncated = false;
 
   // Cut in order of least trustworthiness when the window is tight: per-agent
-  // repo docs first, then agent instructions, then specs cut last (the spec is
-  // the requirements axis's source of truth, so it is the last thing to go).
-  const withDocs = `${top}${specsSection}${instructionsSection}${commentsSection}${docsSection}\n${filesSection}`;
-  const withoutDocs = `${top}${specsSection}${instructionsSection}${commentsSection}\n${filesSection}`;
+  // repo docs first, then the migrations section, then agent instructions,
+  // then specs cut last (the spec is the requirements axis's source of truth,
+  // so it is the last thing to go).
+  const withDocs = `${top}${specsSection}${instructionsSection}${commentsSection}${docsSection}${migrationsSection}\n${filesSection}`;
+  const withoutDocs = `${top}${specsSection}${instructionsSection}${commentsSection}${migrationsSection}\n${filesSection}`;
+  const withoutMigrations = `${top}${specsSection}${instructionsSection}${commentsSection}\n${filesSection}`;
   const withoutInstructions = `${top}${specsSection}${commentsSection}\n${filesSection}`;
   const bare = `${top}${commentsSection}\n${filesSection}`;
 
   let pack = withDocs;
   if (pack.length > maxChars) {
     pack = withoutDocs;
+    truncated = true;
+  }
+  if (pack.length > maxChars) {
+    pack = withoutMigrations;
     truncated = true;
   }
   if (pack.length > maxChars) {
