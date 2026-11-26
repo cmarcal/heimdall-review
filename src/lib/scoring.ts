@@ -6,9 +6,15 @@ export interface ScoringConfig {
   tiers: { id: Tier; min: number; icon: string; label: string }[];
   /** Clamp for pass-2 `question` findings (see config/scoring.json). */
   question?: { certaintyCap?: number; maxTier?: Tier };
+  /** Teach mode: explain findings whose score, as a percentage of maxScore, is below `below`. */
+  teach?: { below?: number; maxScore?: number };
 }
 
 export type FindingStatus = 'keep' | 'question';
+
+/** The shipped defaults, used when a config omits the teach block. */
+export const DEFAULT_TEACH_BELOW = 60;
+export const DEFAULT_TEACH_MAX_SCORE = 30;
 
 export function scoreOf(f: { impact: number; certainty: number; blastRadius: number }, cfg: ScoringConfig): number {
   return Math.round(
@@ -47,6 +53,39 @@ export function scoreAndTier(
   const max = status === 'question' ? cfg.question?.maxTier : undefined;
   if (max && tierWeight(tier) > tierWeight(max)) tier = max;
   return { score, tier };
+}
+
+/**
+ * The score as a percentage of the maximum, so a threshold means the same
+ * thing whatever the weights are. A non-positive maxScore is treated as the
+ * default rather than dividing by zero.
+ */
+export function scorePct(score: number, cfg: ScoringConfig): number {
+  const max = cfg.teach?.maxScore;
+  const maxScore = max && max > 0 ? max : DEFAULT_TEACH_MAX_SCORE;
+  return Math.round((score / maxScore) * 100);
+}
+
+/**
+ * Teach mode reads one thing off the finding: does it score low enough that a
+ * terse comment would leave the author with nothing to act on? Strictly below —
+ * a finding exactly at the bar keeps the terse voice.
+ */
+export function shouldTeach(f: { score: number }, cfg: ScoringConfig): boolean {
+  return scorePct(f.score, cfg) < (cfg.teach?.below ?? DEFAULT_TEACH_BELOW);
+}
+
+/**
+ * The scoring map with this run's teach threshold applied (a `--teach-below`
+ * flag or a repo manifest wins over config/scoring.json). Everything else in
+ * the map is shared by reference: teach must not be able to move a tier.
+ */
+export function teachScoringConfig(
+  cfg: ScoringConfig,
+  override?: { below?: number },
+): ScoringConfig {
+  const below = override?.below ?? cfg.teach?.below ?? DEFAULT_TEACH_BELOW;
+  return { ...cfg, teach: { ...cfg.teach, below } };
 }
 
 /**

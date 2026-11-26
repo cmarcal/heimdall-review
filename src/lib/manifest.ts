@@ -79,6 +79,15 @@ const manifestSchema = z.object({
     .union([z.array(z.string()), z.literal(false)])
     .default(() => [...AGENT_INSTRUCTION_PATTERNS]),
   migrations: z.array(z.string()).default(() => [...MIGRATION_GLOBS]),
+  /**
+   * A repo's own teaching bar (percentage of the maximum score). A value the
+   * harness cannot use is dropped, not an error: a typo in a repo config must
+   * never stop a review.
+   */
+  teach: z
+    .object({ below: z.number().min(0).max(100) })
+    .optional()
+    .catch(undefined),
   agents: z
     .record(z.enum(AGENT_NAMES as [AgentName, ...AgentName[]]), agentCfg.partial())
     .default({}),
@@ -109,6 +118,7 @@ function finalize(p: z.infer<typeof manifestSchema>): Manifest {
     specs: p.specs,
     agentInstructions: p.agentInstructions,
     migrations: p.migrations,
+    ...(p.teach ? { teach: { below: p.teach.below } } : {}),
     agents,
   };
 }

@@ -94,6 +94,12 @@ export interface Manifest {
    * constraint claim must cite them or downgrade to a question.
    */
   migrations: string[];
+  /**
+   * Optional teaching bar for this repo, as a percentage of the maximum score:
+   * `--teach` explains the findings scoring below it. Only `below` is read;
+   * the score map itself stays the harness's.
+   */
+  teach?: { below: number };
   agents: Record<AgentName, { enabled: boolean; docs: string[] }>;
 }
 
