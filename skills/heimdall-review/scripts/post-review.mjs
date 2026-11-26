@@ -20,6 +20,7 @@
  */
 import { readFileSync, existsSync } from 'node:fs';
 import { spawn } from 'node:child_process';
+import { wordCapFor } from './teach-gate.mjs';
 
 const [,, ...argv] = process.argv;
 const has = (f) => argv.includes(`--${f}`);
@@ -44,8 +45,9 @@ const TIERS = {
 };
 
 // Formatting gate — compact mirror of src/lib/format.ts (canonical). The
-// prompts ask for brevity and fenced evidence; the publisher enforces it.
-const MAX_INLINE_WORDS = 80;
+// prompts ask for brevity and fenced evidence; the publisher enforces it. The
+// word budget comes from teach-gate.mjs so a taught body is not graded against
+// the terse one.
 const MAX_TITLE_CHARS = 90;
 const FENCE_RE = /^\s*```/;
 const CODE_LINE_RE = /^\t[ \t]*\S|^ {4,}\S/;
@@ -299,7 +301,8 @@ async function main() {
     for (const f of [...cm.fixes, ...ttl.fixes]) proseFixes.push(`${c.file}:${c.line} ${f}`);
     const comment = cm.text;
     const words = proseWords(comment);
-    if (words > MAX_INLINE_WORDS) progress(`warning: comment for ${c.file}:${c.line} is ${words} prose words (cap ${MAX_INLINE_WORDS}) — voice rule violated, shortening it yourself is the fix`);
+    const cap = wordCapFor(comment);
+    if (words > cap) progress(`warning: comment for ${c.file}:${c.line} is ${words} prose words (cap ${cap}) — voice rule violated, shortening it yourself is the fix`);
     const body = `**${t.icon} ${t.label} — ${capTitle(ttl.text)}**${tags}\n\n${comment}\n\n<sub>heimdall · finding \`${c.findingId}\` · advisory, human decides</sub>`;
     if (c.replyTo) replies.push({ commentId: c.replyTo, body });
     else inlineItems.push({ path: c.file, line: Number(c.line), side: 'RIGHT', body });

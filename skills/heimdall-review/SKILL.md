@@ -49,6 +49,11 @@ From the user's message take the PR link `https://github.com/<owner>/<repo>/pull
 (or a bare number → derive the repo with `gh repo view --json nameWithOwner -q .nameWithOwner`).
 Set `REPO=owner/repo`, `PR=<n>`, and `WORK=/tmp/heimdall-<owner>-<repo>-<pr>-<pid>`.
 
+**Teach mode is opt-in.** If the request asks for it ("teach me", "explain the
+findings", "teach mode", `--teach`) set `TEACH=1`; if it names a number, remember
+that number as the bar. Otherwise skip Step 5.5 entirely and publish exactly the
+Step 5 review — the same PR reviewed without teach must produce the same text.
+
 ## Step 1 — fetch context (deterministic script)
 
 ```bash
@@ -182,6 +187,37 @@ the false tier may bury the real blocker sitting next to it.
    same lines, keep `replyTo` null but open the comment by referencing it
    ("Building on Copilot's note above: …") and ship only what genuinely adds.
 
+## Step 5.5 — teach mode (only when the developer asked for it)
+
+Teach mode changes prose and nothing else. The findings are exactly what Step 4
+produced: never re-tier, re-score, merge, split or drop one here, and never
+teach a finding that is not in a `*.final.json`.
+
+1. Resolve the bar — first match wins: the number from the request, then
+   `teach.below` in `$WORK/manifest.json`, then `teach.below` in
+   `$HEIMDALL_ROOT/config/scoring.json`. A finding qualifies when
+   `round(score / maxScore × 100)` is strictly under the bar (`maxScore` is the
+   scoring map's total, 30 today). Normalizing to a percentage is what lets a
+   repo move the bar without knowing that total — same math as the CLI.
+2. For each qualifying finding, rewrite its comment in the shape of
+   `$HEIMDALL_ROOT/prompts/teach.md`: what the code does, why it breaks, how to
+   fix it — the same evidence quote verbatim in its own fenced block, ≤ 180
+   prose words, the three labels exactly as that prompt names them. Keep
+   `findingId`, `file`, `line`, `tier`, `title` and `status` untouched.
+3. Let the script decide, not you:
+
+```bash
+node "$SKILL_DIR/scripts/check-taught.mjs" --dir "$WORK"          # [--below <pct>]
+```
+
+It re-checks the quote against the record, the labels, the word budget and that
+the finding was not edited after verification, and prints
+`{below, eligible, taught, unexplained, ok, checked, rejected}`. Exit 1 names
+the finding and the reason: fix that body once, or put the terse Step 5 comment
+back — and say which in the report. `unexplained` lists findings under the bar
+you left terse: declare them, never delete them to make the number look better.
+A body that passes is graded at 180 words by `post-review.mjs`, not 80.
+
 ## Step 6 — gap-check silent files
 
 Every in-scope file with no finding gets one quick subagent: "does this file
@@ -205,7 +241,11 @@ deterministically the same way as the CLI:
 `n = max(0, 100 − 40·blockers − 15·majors − 5·minors − 1·nits)`;
 band: any blocker → `💀 Blocked`, else ≥90 `🟢 Ready`, ≥75 `🔵 Nearly ready`,
 ≥50 `🟠 Needs work`, below that `🔴 At risk`.
-Then every finding's comment text. End with:
+Then every finding's comment text. When teach mode ran, one line after the
+score states the bar and the counts (`Teach mode is on: 2 findings under the bar
+(60/100) explained in full; 1 kept the terse comment.`) — the bar is a repo-wide
+calibration number, an individual finding's score is not, and neither is ever
+posted to GitHub. End with:
 "Nothing has been posted. Reply 'post it' to publish N inline comments + summary to the PR."
 Do not proceed without an explicit yes.
 

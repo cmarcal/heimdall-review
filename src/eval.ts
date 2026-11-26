@@ -44,7 +44,13 @@ function matches(f: { file: string; line: number; agent: string; mergedAgents?: 
   return fileOk && lineOk && agentOk;
 }
 
-async function evalFixture(dir: string, mode: 'offline' | 'live', preset?: string) {
+async function evalFixture(
+  dir: string,
+  mode: 'offline' | 'live',
+  preset?: string,
+  /** present only when the run asked for teach mode */
+  teachMode?: { below?: number },
+) {
   const spec = JSON.parse(readFileSync(path.join(dir, 'expected-findings.json'), 'utf8')) as EvalSpec;
   const source = new FixtureSource(dir);
 
@@ -66,6 +72,9 @@ async function evalFixture(dir: string, mode: 'offline' | 'live', preset?: strin
     runsDir: path.join(PKG_ROOT, 'runs', 'eval'),
     llmFactory,
     log: () => {},
+    // teach mode is prose-only: recall and precision must not move
+    teach: teachMode !== undefined,
+    teachBelow: teachMode?.below,
   });
 
   const reported: VerifiedFinding[] = result.consolidated.map((c) => c.finding);
@@ -89,7 +98,14 @@ async function evalFixture(dir: string, mode: 'offline' | 'live', preset?: strin
   return { name: path.basename(dir), verdict: result.summary.verdict, prScore: result.summary.prScore, scores, reported };
 }
 
-export async function runEval(opts: { fixture?: string; mode: 'offline' | 'live'; preset?: string }): Promise<number> {
+export async function runEval(opts: {
+  fixture?: string;
+  mode: 'offline' | 'live';
+  preset?: string;
+  /** run every fixture in teach mode: same findings, explained prose */
+  teach?: boolean;
+  teachBelow?: number;
+}): Promise<number> {
   const root = path.join(PKG_ROOT, 'eval', 'fixtures');
   const dirs = readdirSync(root, { withFileTypes: true })
     .filter((d) => d.isDirectory())
@@ -107,7 +123,7 @@ export async function runEval(opts: { fixture?: string; mode: 'offline' | 'live'
   for (const dir of dirs) {
     const name = path.basename(dir);
     try {
-      const r = await evalFixture(dir, opts.mode, opts.preset);
+      const r = await evalFixture(dir, opts.mode, opts.preset, opts.teach ? { below: opts.teachBelow } : undefined);
       process.stdout.write(`\n▶ ${name}  [${opts.mode}]  ${r.prScore === null ? '—' : `${r.prScore}/100`}  ${r.verdict}\n`);
       for (const s of Object.values(r.scores)) {
         const agg = (perAgent[s.agent] ??= { agent: s.agent, expected: 0, found: 0, missed: [], reported: 0, hallucinations: 0 });
@@ -135,7 +151,8 @@ export async function runEval(opts: { fixture?: string; mode: 'offline' | 'live'
   const precision = totReported ? Math.round(((totReported - totHalluc) / totReported) * 100) : 100;
 
   process.stdout.write('\n──────────────────────────────────────────────\n');
-  process.stdout.write(`mode=${opts.mode}  fixtures=${dirs.length - failed}/${dirs.length}\n`);
+  const teachNote = opts.teach ? `  teach=${opts.teachBelow !== undefined ? opts.teachBelow : 'on'}` : '';
+  process.stdout.write(`mode=${opts.mode}  fixtures=${dirs.length - failed}/${dirs.length}${teachNote}\n`);
   process.stdout.write(`RECALL ${totFound}/${totExpected} (${recall}%)   PRECISION ${precision}%   hallucinations ${totHalluc}\n`);
   if (opts.mode === 'live') {
     process.stdout.write('Copy these numbers into README — real eval numbers beat another architecture diagram.\n');

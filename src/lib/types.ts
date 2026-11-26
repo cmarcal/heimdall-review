@@ -19,7 +19,7 @@ export const AGENT_NAMES: AgentName[] = [
   'standards',
 ];
 
-export type AgentRole = AgentName | 'verifier' | 'consolidator' | 'gap-check';
+export type AgentRole = AgentName | 'verifier' | 'consolidator' | 'gap-check' | 'teach';
 
 export interface DiffFile {
   path: string;
@@ -94,6 +94,12 @@ export interface Manifest {
    * constraint claim must cite them or downgrade to a question.
    */
   migrations: string[];
+  /**
+   * Optional teaching bar for this repo, as a percentage of the maximum score:
+   * `--teach` explains the findings scoring below it. Only `below` is read;
+   * the score map itself stays the harness's.
+   */
+  teach?: { below: number };
   agents: Record<AgentName, { enabled: boolean; docs: string[] }>;
 }
 
@@ -179,4 +185,18 @@ export interface RunSummary {
   modelsUsed: { role: string; model: string; capability: Capability }[];
   budgetUsd: number;
   spentUsd: number;
+  /** present only when the run asked for --teach */
+  teach?: TeachRunRecord;
+}
+
+/** What teach mode did this run. Absent when it was not asked for. */
+export interface TeachRunRecord {
+  /** the normalized 0-100 bar this run used */
+  below: number;
+  /** findings under the bar, i.e. the ones worth explaining */
+  eligible: number;
+  /** of those, how many shipped a teaching body */
+  taught: number;
+  /** of those, how many kept the terse comment because the gate refused */
+  fallback: number;
 }

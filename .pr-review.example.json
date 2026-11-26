@@ -1,5 +1,5 @@
 {
-  "$comment": "Copy to `.pr-review.json` in the root of any repo you want Heimdall to review. Every key is optional — defaults shown here. Set `agentInstructions` to your own glob list to override detection, or `false` to disable it.",
+  "$comment": "Copy to `.pr-review.json` in the root of any repo you want Heimdall to review. Every key is optional — defaults shown here. Set `agentInstructions` to your own glob list to override detection, or `false` to disable it. `teach.below` is the bar `--teach` explains findings under, as a percentage of the maximum score.",
   "preset": null,
   "budgetUsd": 3,
   "maxFileChangedLines": 400,
@@ -8,6 +8,7 @@
   "specs": ["docs/rfc/**", "docs/specs/**", "docs/prd/**", "docs/adr/**"],
   "agentInstructions": ["AGENTS.md", "CLAUDE.md", "GEMINI.md", ".github/copilot-instructions.md", ".cursorrules", ".cursor/rules/**", ".qodo/agents/**", "**/AGENTS.md", "**/CLAUDE.md"],
   "migrations": ["**/*migrat*/**"],
+  "teach": { "below": 60 },
   "agents": {
     "security":     { "enabled": true, "docs": ["docs/security.md", "docs/integration-patterns.md"] },
     "requirements": { "enabled": true, "docs": [] },

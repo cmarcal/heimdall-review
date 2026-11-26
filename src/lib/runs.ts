@@ -1,5 +1,6 @@
 import { mkdirSync, writeFileSync, readdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
+import type { TeachRunRecord } from './types.js';
 
 export interface RunArtifact {
   repo: string;
@@ -13,6 +14,8 @@ export interface RunArtifact {
   gaps: unknown[];
   modelsUsed: unknown[];
   spentUsd: number;
+  /** written only when the run asked for --teach: what teach mode did, for calibration */
+  teach?: TeachRunRecord;
   posted: { reviewSubmitted?: boolean; summaryUrl?: string; inlineUrls?: string[]; threadReplies?: string[] };
 }
 

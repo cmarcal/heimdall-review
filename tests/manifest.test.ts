@@ -72,3 +72,43 @@ describe('migrations manifest key', () => {
     expect(m.migrations).toEqual(['sql/migrations/**']);
   });
 });
+
+// The optional teach override: a repo may move the teaching bar for its own
+// reviews. Anything it does not understand must not break manifest parsing.
+describe('teach manifest override', () => {
+  it('is absent by default', () => {
+    expect(defaultManifest().teach).toBeUndefined();
+  });
+
+  it('honors a repo threshold', () => {
+    const m = parseManifest(JSON.stringify({ teach: { below: 45 } }));
+    expect(m.teach).toEqual({ below: 45 });
+  });
+
+  it('keeps the rest of the manifest when the override is present', () => {
+    const m = parseManifest(JSON.stringify({ budgetUsd: 4, teach: { below: 70 } }));
+    expect(m.budgetUsd).toBe(4);
+    expect(m.teach).toEqual({ below: 70 });
+    expect(m.agents.security.enabled).toBe(true);
+  });
+
+  it('ignores a malformed override instead of failing the parse', () => {
+    for (const bad of [
+      { teach: 'always' },
+      { teach: 12 },
+      { teach: { below: 'low' } },
+      { teach: { below: 500 } },
+      { teach: { below: -1 } },
+      { teach: { treshold: 40 } },
+    ]) {
+      const m = parseManifest(JSON.stringify(bad));
+      expect(m.teach).toBeUndefined();
+      expect(m.budgetUsd).toBe(3);
+    }
+  });
+
+  it('reads only the threshold from the block', () => {
+    const m = parseManifest(JSON.stringify({ teach: { below: 55, maxScore: 20, extra: true } }));
+    expect(m.teach).toEqual({ below: 55 });
+  });
+});

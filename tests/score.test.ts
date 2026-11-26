@@ -53,3 +53,37 @@ describe('renderReport PR score highlight', () => {
     expect(report).toContain('not available (no specialist completed');
   });
 });
+
+// Teach mode is a promise the run makes to the operator: it says which bar it
+// used and how many findings it could not explain. Without the flag the report
+// must not mention it at all.
+describe('renderReport teach mode', () => {
+  it('states the threshold and what teach did', () => {
+    const report = renderReport(
+      'acme/x',
+      7,
+      [],
+      run({ teach: { below: 60, eligible: 3, taught: 2, fallback: 1 } }),
+    );
+    expect(report).toMatch(/Teach mode/i);
+    expect(report).toContain('60/100');
+    expect(report).toMatch(/2 explained/);
+    expect(report).toMatch(/1 kept the terse comment/);
+  });
+
+  it('counts the findings under the bar once, in the singular when there is one', () => {
+    const report = renderReport('acme/x', 7, [], run({ teach: { below: 60, eligible: 1, taught: 1, fallback: 0 } }));
+    expect(report).toMatch(/1 explained, 0 kept the terse comment \(1 finding under the bar\)/);
+    expect(report).not.toMatch(/1 findings/);
+  });
+
+  it('leaves the report byte-identical when nothing fell under the bar', () => {
+    const plain = renderReport('acme/x', 7, [], run({}));
+    const taught = renderReport('acme/x', 7, [], run({ teach: { below: 60, eligible: 0, taught: 0, fallback: 0 } }));
+    expect(taught).toBe(plain);
+  });
+
+  it('stays out of the report when teach mode was not asked for', () => {
+    expect(renderReport('acme/x', 7, [], run({}))).not.toMatch(/teach/i);
+  });
+});

@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { CONFIG_DIR } from './lib/paths.js';
+import { DEFAULT_TEACH_BELOW, DEFAULT_TEACH_MAX_SCORE } from './lib/scoring.js';
 import { loadModelsConfig, resolveModel } from './llm/config.js';
 import { createOpenAiCompatibleClient } from './llm/openai-compatible.js';
 import { createAnthropicClient } from './llm/anthropic.js';
@@ -16,6 +17,7 @@ const ROLES: AgentRole[] = [
   'standards',
   'verifier',
   'consolidator',
+  'teach',
   'gap-check',
 ];
 
@@ -78,9 +80,18 @@ export function describeScoring(): void {
   const cfg = JSON.parse(readFileSync(path.join(CONFIG_DIR, 'scoring.json'), 'utf8')) as {
     weights: Record<string, number>;
     tiers: { id: string; min: number }[];
+    teach?: { below?: number; maxScore?: number };
   };
   process.stdout.write(`scoring weights: ${JSON.stringify(cfg.weights)}\n`);
   for (const t of [...cfg.tiers].sort((a, b) => b.min - a.min)) {
     process.stdout.write(`  ${t.id.padEnd(8)} score >= ${t.min}\n`);
   }
+  // The teaching bar is calibrated against this same map, so it is printed with
+  // it — as a share of the maximum, which is what keeps its meaning after a
+  // recalibration.
+  const below = cfg.teach?.below ?? DEFAULT_TEACH_BELOW;
+  const maxScore = cfg.teach?.maxScore ?? DEFAULT_TEACH_MAX_SCORE;
+  process.stdout.write(
+    `teach bar    ${below}/${maxScore}  (--teach explains findings under it: prose only, no score or tier moves)\n`,
+  );
 }

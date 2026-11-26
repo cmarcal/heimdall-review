@@ -118,6 +118,9 @@ npm run heimdall -- review 123 --repo owner/repo --post
 # 4. grade the reviewer itself
 npm run heimdall -- eval              # offline, deterministic, needs no key
 npm run heimdall -- eval --live       # against your real configured model
+
+# 5. optional: explain the low-scoring findings instead of one-lining them
+npm run heimdall -- review 123 --repo owner/repo --teach
 ```
 
 After `npm run build`, the `heimdall` binary is on your PATH via `npm link`.
@@ -157,6 +160,41 @@ skill run and a CLI run never post over each other's findings.
 
 ---
 
+## Teach mode: explain the findings, don't just flag them
+
+A 🔵 Nit phrased as a verdict teaches the author nothing. `--teach` rewrites the
+comment on every finding that scored **under the bar** into three labeled parts —
+what the code does, why it breaks, how to fix it — while findings at or above the
+bar keep the terse comment they have today.
+
+```bash
+npm run heimdall -- review 123 --repo owner/repo --teach
+npm run heimdall -- review 123 --repo owner/repo --teach-below 40   # move the bar
+npm run heimdall -- eval --teach                                    # same eval, taught prose
+```
+
+It is prose only, and it runs **after** consolidation: the specialists, the
+pass-2 verifier, the dedupe and the gap-check all still see the terse finding
+they see today. Nothing about the finding moves — same score, tier, verdict, PR
+score, and the offline eval still reports recall 5/5 with teach on.
+
+The bar is a percentage of the maximum score, so it survives a recalibrated map:
+a finding is explained when `round(score / maxScore * 100)` is strictly below it.
+The number comes from `--teach-below`, then `teach.below` in the repo's
+`.pr-review.json`, then `teach.below` in
+[`config/scoring.json`](config/scoring.json) (60).
+
+Teaching is harness-gated like everything else. The body must still carry the
+verified evidence quote verbatim in its own fenced block, all three labels, and
+180 prose words or fewer; otherwise the finding keeps its plain comment and the
+run log says so. Scores themselves stay off the PR — the published summary only
+states the bar and how many findings were explained.
+
+Ask for the same thing in the skill: "review this PR and teach me the small
+ones". `scripts/check-taught.mjs` applies the identical gate.
+
+---
+
 ## Model presets (no vendor lock-in)
 
 One OpenAI-compatible client reaches OpenRouter, Groq, Together, Mistral, GitHub
@@ -180,7 +218,8 @@ honest about its own limits, like it demands of the code.
 Drop a `.pr-review.json` in the reviewed repo (see [`.pr-review.example.json`](.pr-review.example.json))
 to set the budget, skip globs, spec-file locations, which specialists are on, and
 the repo docs each specialist should read (`docs/security.md`, testing guide, ADRs…).
-Zero-config still works — sensible defaults.
+It can also move the teach bar for everyone reviewing that repo (`teach.below`, a
+0-100 percentage). Zero-config still works — sensible defaults.
 
 ### Heimdall reads the repo's agent instructions
 
@@ -221,7 +260,7 @@ is wired correctly and that fabricated quotes are deleted, not posted:
 
 | suite | result |
 |---|---|
-| unit tests | **139 passing** |
+| unit tests | **220 passing** |
 | eval fixtures (5) | **recall 5/5 · precision 100% · hallucinations posted 0** |
 
 Each fixture plants one real bug and a decoy; the security fixture also feeds the

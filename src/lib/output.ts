@@ -92,6 +92,18 @@ export function renderReport(
     lines.push('## Not reviewed');
     for (const n of run.notReviewed) lines.push(`- ${n.file}: ${n.reason}`);
   }
+  // Teach mode earns a line only when something was under the bar: a run where
+  // it had nothing to do reports exactly what the same run without it reported.
+  if (run.teach && run.teach.eligible > 0) {
+    const t = run.teach;
+    lines.push('');
+    lines.push('## 🎓 Teach mode');
+    lines.push(`- bar: ${t.below}/100 of the maximum score — a finding under it gets a full explanation`);
+    lines.push(
+      `- ${t.taught} explained, ${t.fallback} kept the terse comment ` +
+        `(${t.eligible} finding${t.eligible === 1 ? '' : 's'} under the bar)`,
+    );
+  }
   if (run.usedBasicModel) {
     lines.push('');
     lines.push('⚠️ basic-capability models were used — expect shallower security/regression analysis.');

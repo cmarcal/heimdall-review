@@ -15,5 +15,10 @@
     "$comment": "A pass-2 'question' is a concern the verifier could NOT confirm from the code — its tier must never exceed maxTier, whatever the finder scored it. A real PR on a private app repo: a speculative 'login might outrun init()' question posted as Major on a false premise.",
     "certaintyCap": 3,
     "maxTier": "minor"
+  },
+  "teach": {
+    "$comment": "With --teach, findings scoring below this normalized value get a teaching body. Normalized = score / maxScore * 100. Scores are private; the PR only ever shows the tier icon and label.",
+    "below": 60,
+    "maxScore": 30
   }
 }

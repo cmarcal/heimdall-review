@@ -61,3 +61,32 @@ describe('buildSummaryComment', () => {
     expect(s).not.toMatch(/score.*25|impact.*9/i);
   });
 });
+
+// Teach mode is visible on the PR: the author should know why one comment reads
+// like a lesson and another does not. The bar is a repo-wide calibration number
+// that ships in config/scoring.json — no finding's score moves into the open.
+describe('teach mode in the published summary', () => {
+  const taught = run({ teach: { below: 60, eligible: 3, taught: 2, fallback: 1 } });
+
+  it('names the bar and what it produced', () => {
+    const s = buildSummaryComment('a/b', 1, [finding], taught);
+    expect(s).toMatch(/Teach mode/i);
+    expect(s).toContain('60/100');
+    expect(s).toMatch(/2 .*explained/);
+    expect(s).toMatch(/1 .*terse/);
+  });
+
+  it('still leaks no per-finding score', () => {
+    const s = buildSummaryComment('a/b', 1, [finding], taught);
+    expect(s).not.toMatch(/score.*25|impact.*9/i);
+  });
+
+  it('says nothing when teach mode was off', () => {
+    expect(buildSummaryComment('a/b', 1, [finding], run({}))).not.toMatch(/teach/i);
+  });
+
+  it('says nothing when teach mode found nothing to explain', () => {
+    const empty = buildSummaryComment('a/b', 1, [finding], run({ teach: { below: 60, eligible: 0, taught: 0, fallback: 0 } }));
+    expect(empty).not.toMatch(/teach/i);
+  });
+});
