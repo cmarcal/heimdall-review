@@ -10,20 +10,20 @@ import { globMatch } from '../src/lib/util.js';
 describe('extractTableRefs', () => {
   it('finds DML tables, splitting schema-qualified names', () => {
     const diff = [
-      '+  `SELECT id, full_name FROM core.eligible_member WHERE id = $1`',
-      '+  `UPDATE core.eligible_member SET mobile_number = $2`',
+      '+  `SELECT id, customer_name FROM core.orders WHERE id = $1`',
+      '+  `UPDATE core.orders SET status = $2`',
       '+  `INSERT INTO queue (id) VALUES ($1)`',
     ].join('\n');
-    expect(extractTableRefs(diff)).toEqual(['core', 'eligible_member', 'queue']);
+    expect(extractTableRefs(diff)).toEqual(['core', 'orders', 'queue']);
   });
 
   it('finds DDL targets (create/alter/drop/truncate table)', () => {
     const diff = [
       '+CREATE TABLE IF NOT EXISTS core.queue (id uuid);',
-      '+ALTER TABLE eligible_member ADD CONSTRAINT ...;',
+      '+ALTER TABLE orders ADD CONSTRAINT ...;',
       '+TRUNCATE TABLE audit_log;',
     ].join('\n');
-    expect(extractTableRefs(diff)).toEqual(['audit_log', 'core', 'eligible_member', 'queue']);
+    expect(extractTableRefs(diff)).toEqual(['audit_log', 'core', 'orders', 'queue']);
   });
 
   it('filters syntax noise, aliases and short names', () => {
@@ -39,18 +39,18 @@ describe('extractTableRefs', () => {
 
 describe('selectMigrationPaths', () => {
   const tree = [
-    'db/migrations/0012_create_eligible_member.up.sql',
+    'db/migrations/0007_create_orders.up.sql',
     'db/migrations/0013_create_audit.up.sql',
-    'db/post_deployment_migrations/0042_create_xie_queue_partial_concurrency_key_signup_sms.up.sql',
+    'db/post_deployment_migrations/0042_backfill_queue_partial_concurrency_key.up.sql',
     'src/migrations/20240101_add_feature_flags.sql',
-    'db/seeds/eligible_member_seed.sql',
+    'db/seeds/orders_seed.sql',
     'README.md',
   ];
 
   it('keeps only migration-glob files whose path names a referenced table', () => {
-    expect(selectMigrationPaths(tree, ['eligible_member', 'queue'], MIGRATION_GLOBS, [])).toEqual([
-      'db/migrations/0012_create_eligible_member.up.sql',
-      'db/post_deployment_migrations/0042_create_xie_queue_partial_concurrency_key_signup_sms.up.sql',
+    expect(selectMigrationPaths(tree, ['orders', 'queue'], MIGRATION_GLOBS, [])).toEqual([
+      'db/migrations/0007_create_orders.up.sql',
+      'db/post_deployment_migrations/0042_backfill_queue_partial_concurrency_key.up.sql',
     ]);
   });
 
@@ -59,15 +59,15 @@ describe('selectMigrationPaths', () => {
   });
 
   it('ignores paths outside the migration globs even on a name hit', () => {
-    expect(selectMigrationPaths(tree, ['eligible_member'], MIGRATION_GLOBS, [])).not.toContain(
-      'db/seeds/eligible_member_seed.sql',
+    expect(selectMigrationPaths(tree, ['orders'], MIGRATION_GLOBS, [])).not.toContain(
+      'db/seeds/orders_seed.sql',
     );
   });
 
   it('honours skip globs', () => {
     const skip = ['**/post_deployment_migrations/**'];
-    expect(selectMigrationPaths(tree, ['eligible_member', 'queue'], MIGRATION_GLOBS, skip)).toEqual([
-      'db/migrations/0012_create_eligible_member.up.sql',
+    expect(selectMigrationPaths(tree, ['orders', 'queue'], MIGRATION_GLOBS, skip)).toEqual([
+      'db/migrations/0007_create_orders.up.sql',
     ]);
   });
 
@@ -80,6 +80,6 @@ describe('selectMigrationPaths', () => {
     ]) {
       expect(MIGRATION_GLOBS.some((g) => globMatch(g, p))).toBe(true);
     }
-    expect(MIGRATION_GLOBS.some((g) => globMatch(g, 'src/db/eligible_member.ts'))).toBe(false);
+    expect(MIGRATION_GLOBS.some((g) => globMatch(g, 'src/db/orders.ts'))).toBe(false);
   });
 });

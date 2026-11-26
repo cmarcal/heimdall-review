@@ -200,8 +200,8 @@ defaults, or `false` to turn detection off.
 When the diff's SQL names a table (`FROM`, `JOIN`, `UPDATE`, `INSERT INTO`,
 `CREATE/ALTER/DROP TABLE`), Heimdall fetches the migrations whose file names
 mention those tables and packs them for every specialist as **schema facts**.
-A constraint defined outside the diff — like a `UNIQUE (client_id,
-mobile_number)` you cannot see from a `:many` query — is what turns a false
+A constraint defined outside the diff — like a `UNIQUE (order_id, sku)`
+you cannot see from a `:many` query — is what turns a false
 "this column is not unique" Major into a dropped candidate before it ever
 posts. Constraint claims must cite these files or degrade to a question.
 
@@ -222,7 +222,7 @@ is wired correctly and that fabricated quotes are deleted, not posted:
 | suite | result |
 |---|---|
 | unit tests | **139 passing** |
-| eval fixtures (6) | **recall 6/6 · precision 100% · hallucinations posted 0** |
+| eval fixtures (5) | **recall 5/5 · precision 100% · hallucinations posted 0** |
 
 Each fixture plants one real bug and a decoy; the security fixture also feeds the
 verifier a KEEP verdict backed by a quote that **is not in the code** — and it is

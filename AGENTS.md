@@ -11,7 +11,7 @@ quote it from the real code.
 - `npm test` - run the vitest suite in `tests/`.
 - `npm run typecheck` - `tsc --noEmit`. Build is `npm run build`.
 - `npm run heimdall -- eval` - offline eval, no key, deterministic. It must stay
-  at recall 6/6, precision 100%, 0 hallucinations posted.
+  at recall 5/5, precision 100%, 0 hallucinations posted.
 - `npm run heimdall -- review <pr> --repo owner/repo` - review a PR. Dry-run is
   the default and posts nothing; add `--post` to publish.
 - `npm run install-skill` / `npm run uninstall-skill` - link the `/heimdall-review`

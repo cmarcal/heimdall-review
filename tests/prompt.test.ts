@@ -81,8 +81,8 @@ describe('Repo agent instructions section', () => {
 describe('Migrations section (schema facts)', () => {
   const migrations = [
     {
-      path: 'db/migrations/0012_create_eligible_member.up.sql',
-      content: 'UNIQUE (client_id, mobile_number)',
+      path: 'db/migrations/0007_create_orders.up.sql',
+      content: 'UNIQUE (order_id, sku)',
     },
   ];
 
@@ -92,7 +92,7 @@ describe('Migrations section (schema facts)', () => {
       c.migrations = migrations;
       const pack = buildContextPack(c, agent, 300_000).pack;
       expect(pack).toContain('## Migrations for tables this diff touches');
-      expect(pack).toContain('UNIQUE (client_id, mobile_number)');
+      expect(pack).toContain('UNIQUE (order_id, sku)');
     }
   });
 

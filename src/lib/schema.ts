@@ -40,8 +40,8 @@ const DDL_TABLE_RE =
 
 /**
  * Table names referenced by SQL text (a diff, a query file). Schema-qualified
- * names contribute every dot-segment, so `core.eligible_member` yields both
- * `core` and `eligible_member`. Lowercased, deduped, sorted; syntax noise filtered.
+ * names contribute every dot-segment, so `core.orders` yields both
+ * `core` and `orders`. Lowercased, deduped, sorted; syntax noise filtered.
  */
 export function extractTableRefs(text: string): string[] {
   const names = new Set<string>();
