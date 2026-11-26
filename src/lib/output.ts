@@ -100,7 +100,8 @@ export function renderReport(
     lines.push('## 🎓 Teach mode');
     lines.push(`- bar: ${t.below}/100 of the maximum score — a finding under it gets a full explanation`);
     lines.push(
-      `- ${t.taught} explained, ${t.fallback} kept the terse comment (${t.eligible} of ${consolidated.length} findings under the bar)`,
+      `- ${t.taught} explained, ${t.fallback} kept the terse comment ` +
+        `(${t.eligible} finding${t.eligible === 1 ? '' : 's'} under the bar)`,
     );
   }
   if (run.usedBasicModel) {

@@ -71,6 +71,12 @@ describe('renderReport teach mode', () => {
     expect(report).toMatch(/1 kept the terse comment/);
   });
 
+  it('counts the findings under the bar once, in the singular when there is one', () => {
+    const report = renderReport('acme/x', 7, [], run({ teach: { below: 60, eligible: 1, taught: 1, fallback: 0 } }));
+    expect(report).toMatch(/1 explained, 0 kept the terse comment \(1 finding under the bar\)/);
+    expect(report).not.toMatch(/1 findings/);
+  });
+
   it('leaves the report byte-identical when nothing fell under the bar', () => {
     const plain = renderReport('acme/x', 7, [], run({}));
     const taught = renderReport('acme/x', 7, [], run({ teach: { below: 60, eligible: 0, taught: 0, fallback: 0 } }));

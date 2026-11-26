@@ -260,7 +260,7 @@ is wired correctly and that fabricated quotes are deleted, not posted:
 
 | suite | result |
 |---|---|
-| unit tests | **219 passing** |
+| unit tests | **220 passing** |
 | eval fixtures (5) | **recall 5/5 · precision 100% · hallucinations posted 0** |
 
 Each fixture plants one real bug and a decoy; the security fixture also feeds the
