@@ -1,0 +1,24 @@
+{
+  "script": {
+    "security": "[{\"file\":\"internal/signup/signup.go\",\"line\":29,\"title\":\"Sign-up token minted without rechecking the member's current number\",\"evidenceQuote\":\"token, err := c.tokens.Generate(ctx, member.ID)\",\"why\":\"SyncMember in internal/db/sync.go rewrites a member's mobile_number while keeping the id, so a queued item can hold a number the member no longer has; Send mints that member's sign-up token for the stale number and never compares it against the member's stored number.\",\"suggestion\":\"Before minting the token, hash item.Number and skip the send unless it equals the member's stored mobile_number; keep the queued number as the recipient.\",\"impact\":8,\"certainty\":7,\"blastRadius\":4},{\"file\":\"internal/signup/signup.go\",\"line\":19,\"title\":\"Shared number can receive another member's sign-up token\",\"evidenceQuote\":\"member := eligibles[0]\",\"why\":\"mobile_number is not unique per client, so when several members share a number the first row's member name and a redeemable token go to the shared number.\",\"suggestion\":\"Skip the enqueue when more than one member matches.\",\"impact\":9,\"certainty\":8,\"blastRadius\":6}]",
+    "verifier": "[{\"file\":\"internal/signup/signup.go\",\"line\":29,\"title\":\"Sign-up token minted without rechecking the member's current number\",\"evidenceQuote\":\"token, err := c.tokens.Generate(ctx, member.ID)\",\"why\":\"SyncMember in internal/db/sync.go rewrites a member's mobile_number while keeping the id, so a queued item can hold a number the member no longer has; Send mints that member's sign-up token for the stale number and never compares it against the member's stored number.\",\"suggestion\":\"Before minting the token, hash item.Number and skip the send unless it equals the member's stored mobile_number; keep the queued number as the recipient.\",\"impact\":8,\"certainty\":7,\"blastRadius\":4,\"status\":\"keep\",\"verifiedEvidence\":\"token, err := c.tokens.Generate(ctx, member.ID)\"},{\"file\":\"internal/signup/signup.go\",\"line\":19,\"title\":\"Shared number can receive another member's sign-up token\",\"evidenceQuote\":\"member := eligibles[0]\",\"why\":\"The migrations section carries db/migrations/0012_create_eligible_member.up.sql: UNIQUE (client_id, mobile_number) on valkyrie.eligible_member. The multi-match state the finding rests on cannot exist — premise refuted, whatever the query cardinality suggests.\",\"suggestion\":\"Skip the enqueue when more than one member matches.\",\"impact\":9,\"certainty\":8,\"blastRadius\":6,\"status\":\"drop\",\"verifiedEvidence\":\"\"}]",
+    "requirements": "[]",
+    "e2e-tests": "[]",
+    "architecture": "[]",
+    "regression": "[]",
+    "performance": "[]",
+    "standards": "[]",
+    "consolidator": "@echo-groups",
+    "gap-check": "{\"clean\":true}"
+  },
+  "models": {
+    "security": {
+      "model": "scripted:high",
+      "capability": "high"
+    },
+    "verifier": {
+      "model": "scripted:high",
+      "capability": "high"
+    }
+  }
+}
