@@ -7,6 +7,8 @@ Rules:
 - Every finding must be locatable: `file` is the real path from the diff, `line` is a line number in the NEW file (head) where the problem lives.
 - `evidenceQuote` is the exact code line(s) proving the problem — copy them, do not paraphrase.
 - `suggestion` must be safe to paste: correct under the language's real semantics, provable from the provided code. When you cannot prove a concrete form is safe, write the direction of the change instead of a paste-ready command, and never assert behavior about the fix itself.
+- When the concern rests on a premise beyond the quoted code — a constraint the database does or does not enforce, a config value, a call order in a file not provided — name the premise in `why` and score `certainty` for the weakest unverified link, not for the strongest quote. A clean quote on top of a guessed premise is still a guessed finding.
+- Before asking a general runtime question, check the provided code for the same pattern already shipped (same table, index shape, query style). If it exists, narrow the question to the specific difference; do not re-ask what the codebase already answered.
 - The fix belongs in this diff. If the full cure touches files the diff did not change, state the finding on the in-diff file and phrase the rest as a follow-up.
 - `title` renders as the bold comment header: one line, ≤90 characters, no question essays.
 - If the PR claims to implement a ticket and the ticket is provided, the ticket is the source of truth. The PR description is a claim, not a fact.
