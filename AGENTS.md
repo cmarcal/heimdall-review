@@ -30,7 +30,9 @@ and enforces the quote gate -> `src/agents/consolidator.ts` merges and rewrites 
 
 The shared brain is `prompts/*.md` and `config/scoring.json`. `src/lib/manifest.ts`
 parses a repo's `.pr-review.json` and holds the discovery defaults (skip globs,
-spec globs, `AGENT_INSTRUCTION_PATTERNS`).
+spec globs, `AGENT_INSTRUCTION_PATTERNS`, `MIGRATION_GLOBS`). When the diff's SQL
+names tables, the source fetches the migrations naming them as schema facts
+(`src/lib/schema.ts`) — a constraint claim must cite them or post as a question.
 
 ## Hard rules
 
