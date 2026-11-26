@@ -46,15 +46,6 @@ export const DEFAULT_DOCS: Record<AgentName, string[]> = {
   standards: ['CONTRIBUTING.md', 'CODING_STANDARDS.md', 'docs/standards/**'],
 };
 
-/**
- * Migration directories found with no manifest present. Matches any path
- * segment that looks like a migration folder (db/migrations,
- * db/post_deployment_migrations, prisma/migrations, db/migrate, flyway's
- * db/migration), so one pattern covers most layouts. Only files whose names
- * mention a table the diff references are fetched (see lib/schema.ts).
- */
-export const MIGRATION_GLOBS: string[] = ['**/*migrat*/**'];
-
 const manifestSchema = z.object({
   preset: z.string().nullable().default(null),
   budgetUsd: z.number().positive().default(3),
@@ -78,7 +69,6 @@ const manifestSchema = z.object({
   agentInstructions: z
     .union([z.array(z.string()), z.literal(false)])
     .default(() => [...AGENT_INSTRUCTION_PATTERNS]),
-  migrations: z.array(z.string()).default(() => [...MIGRATION_GLOBS]),
   agents: z
     .record(z.enum(AGENT_NAMES as [AgentName, ...AgentName[]]), agentCfg.partial())
     .default({}),
@@ -108,7 +98,6 @@ function finalize(p: z.infer<typeof manifestSchema>): Manifest {
     skip: p.skip,
     specs: p.specs,
     agentInstructions: p.agentInstructions,
-    migrations: p.migrations,
     agents,
   };
 }

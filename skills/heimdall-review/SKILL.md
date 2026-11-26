@@ -59,10 +59,9 @@ It writes: `pr.json`, `diff.patch`, `files.json` (changed files + caps),
 `skipped.json` (cut files), `files/<path>` (head content), `comments.json`
 (+ `threadsTrusted`), `ticket.json`, `specs.json`, `manifest.json`,
 `instructions.json` (the repo's own agent-instruction files: AGENTS.md, Cursor
-rules, ...), `migrations.json` (the tables the diff's SQL names + the migrations
-naming them — schema facts: constraints there are final), `docs/<agent>.json`.
-Read `pr.json`, `files.json`, `skipped.json`, `ticket.json` before continuing.
-If the script fails, stop and report — do not hand-fetch with ad-hoc gh calls.
+rules, ...), `docs/<agent>.json`. Read `pr.json`, `files.json`, `skipped.json`,
+`ticket.json` before continuing. If the script fails, stop and report — do not
+hand-fetch with ad-hoc gh calls.
 
 ## Step 2 — seven specialists, pass 1 (subagents, in parallel if supported)
 
@@ -80,7 +79,6 @@ subagent with exactly this brief (fill the paths):
 > - Ticket (or the "unverified" note): `$WORK/ticket.json`
 > - Specs: `$WORK/specs.json` · your repo docs: `$WORK/docs/<agent>.json`
 > - Repo agent instructions (citable standards): `$WORK/instructions.json`
-> - Migrations for tables this diff touches (schema facts — a constraint claim must cite these): `$WORK/migrations.json`
 > - Existing PR comments (do not repeat them): `$WORK/comments.json`
 > - The diff: `$WORK/diff.patch`; full head content per file in `$WORK/files/`
 > - Only these files are in scope: <list from files.json>
@@ -99,9 +97,7 @@ subagent (fresh eyes — never the same one that found things):
 > You are the verifier. Read `$HEIMDALL_ROOT/prompts/contract-pass2.md` and
 > follow it exactly. Candidates: `$WORK/agents/<agent>.candidates.json`.
 > The REAL head code is in `$WORK/files/` — re-read the actual file for each
-> candidate before deciding. Schema facts: `$WORK/migrations.json` — a candidate
-> whose severity rests on a constraint those files contradict is a `drop`, even
-> with a clean quote. `verifiedEvidence` must be a character-for-character
+> candidate before deciding. `verifiedEvidence` must be a character-for-character
 > quote from those files. Write the full JSON array (every candidate, with
 > `status` and `verifiedEvidence`) to `$WORK/agents/<agent>.verified.json`.
 
@@ -119,7 +115,7 @@ map (`config/scoring.json`), assigns stable `findingId`s, and writes
 `agents/<agent>.final.json` printing `{kept, question, dropped, droppedQuote}`.
 These numbers feed the coverage table — the dropped count is a feature.
 
-## Step 4.5 — answer your own questions, and stress-test your Majors (before anyone else has to)
+## Step 4.5 — answer your own questions (before anyone else has to)
 
 Every surviving `question` finding asks something the provided code could not
 confirm. Before consolidating, try to answer each one from the repository
@@ -146,14 +142,6 @@ only a repo the PR explicitly references, never roam the org. Then:
 
 A question you could have answered but posted anyway is a review defect, even
 when the answer would have been "keep".
-
-Run the same probe against every surviving 🔴 Major / 💀 Blocker whose severity
-rests on a premise the diff does not carry — "the column is not unique", "no
-one calls this", "the flag is off". For schema premises the deciding files are
-usually already in `migrations.json`; fetch what is missing. A Major disproved
-before publishing becomes an honest line in the coverage table; a Major
-disproved by the author in the thread costs the whole review credibility, and
-the false tier may bury the real blocker sitting next to it.
 
 ## Step 5 — consolidate (you do this, no LLM)
 

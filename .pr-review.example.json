@@ -7,7 +7,6 @@
   "skip": ["**/*.lock", "**/package-lock.json", "**/yarn.lock", "**/pnpm-lock.yaml", "**/dist/**", "**/build/**", "**/generated/**", "**/*.min.js", "**/*.min.css", "**/*.svg", "**/*.png", "**/*.jpg", "**/*.gif", "**/*.ico", "**/*.pdf"],
   "specs": ["docs/rfc/**", "docs/specs/**", "docs/prd/**", "docs/adr/**"],
   "agentInstructions": ["AGENTS.md", "CLAUDE.md", "GEMINI.md", ".github/copilot-instructions.md", ".cursorrules", ".cursor/rules/**", ".qodo/agents/**", "**/AGENTS.md", "**/CLAUDE.md"],
-  "migrations": ["**/*migrat*/**"],
   "agents": {
     "security":     { "enabled": true, "docs": ["docs/security.md", "docs/integration-patterns.md"] },
     "requirements": { "enabled": true, "docs": [] },

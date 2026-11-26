@@ -11,7 +11,7 @@ quote it from the real code.
 - `npm test` - run the vitest suite in `tests/`.
 - `npm run typecheck` - `tsc --noEmit`. Build is `npm run build`.
 - `npm run heimdall -- eval` - offline eval, no key, deterministic. It must stay
-  at recall 6/6, precision 100%, 0 hallucinations posted.
+  at recall 5/5, precision 100%, 0 hallucinations posted.
 - `npm run heimdall -- review <pr> --repo owner/repo` - review a PR. Dry-run is
   the default and posts nothing; add `--post` to publish.
 - `npm run install-skill` / `npm run uninstall-skill` - link the `/heimdall-review`
@@ -30,9 +30,7 @@ and enforces the quote gate -> `src/agents/consolidator.ts` merges and rewrites 
 
 The shared brain is `prompts/*.md` and `config/scoring.json`. `src/lib/manifest.ts`
 parses a repo's `.pr-review.json` and holds the discovery defaults (skip globs,
-spec globs, `AGENT_INSTRUCTION_PATTERNS`, `MIGRATION_GLOBS`). When the diff's SQL
-names tables, the source fetches the migrations naming them as schema facts
-(`src/lib/schema.ts`) — a constraint claim must cite them or post as a question.
+spec globs, `AGENT_INSTRUCTION_PATTERNS`).
 
 ## Hard rules
 

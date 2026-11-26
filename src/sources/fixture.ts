@@ -16,8 +16,6 @@ export interface FixtureMeta {
   comments?: ReviewContext['comments'];
   /** repo agent-instruction files for fixtures that exercise that section */
   agentInstructions?: SpecFile[];
-  /** migrations-as-schema-facts for fixtures that exercise that section */
-  migrations?: SpecFile[];
 }
 
 export interface FixturePr {
@@ -77,7 +75,6 @@ export class FixtureSource implements ReviewSource {
       threadsTrusted: true,
       manifest: parseManifest(JSON.stringify(manifest)),
       docs: [],
-      migrations: meta.migrations ?? [],
       contextTruncated: false,
     };
   }

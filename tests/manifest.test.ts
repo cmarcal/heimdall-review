@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { AGENT_INSTRUCTION_PATTERNS, MIGRATION_GLOBS, defaultManifest, parseManifest } from '../src/lib/manifest.js';
+import { AGENT_INSTRUCTION_PATTERNS, defaultManifest, parseManifest } from '../src/lib/manifest.js';
 
 // The agent-instructions axis: a repo's own AI-tool rule files (AGENTS.md,
 // CLAUDE.md, GEMINI.md, Copilot/Cursor/Qodo config, nested variants) are
@@ -56,19 +56,5 @@ describe('standards DEFAULT_DOCS no longer overlaps the instruction section', ()
     );
     expect(docs).not.toContain('AGENTS.md');
     expect(docs).not.toContain('CLAUDE.md');
-  });
-});
-
-// The migrations axis: when the diff's SQL names a table, migrations naming
-// that table are fetched as schema facts, so a constraint claim must cite them
-// or degrade to a question (see src/lib/schema.ts).
-describe('migrations manifest key', () => {
-  it('defaults to the migration-dir globs', () => {
-    expect(defaultManifest().migrations).toEqual(MIGRATION_GLOBS);
-  });
-
-  it('is overridable by the repo', () => {
-    const m = parseManifest(JSON.stringify({ migrations: ['sql/migrations/**'] }));
-    expect(m.migrations).toEqual(['sql/migrations/**']);
   });
 });

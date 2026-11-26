@@ -2,7 +2,6 @@ import { createGh, ghJson, ghReadFile, ghTree, type GhRunner } from '../lib/gh.j
 import { parsePatch, applyCaps } from '../lib/diff.js';
 import { parseManifest, defaultManifest } from '../lib/manifest.js';
 import { parseLinkedIssue } from '../lib/ticket.js';
-import { extractTableRefs, selectMigrationPaths } from '../lib/schema.js';
 import { globMatch, truncate } from '../lib/util.js';
 import { assembleAgentInstructions, selectAgentInstructionPaths } from '../lib/instructions.js';
 import type {
@@ -31,8 +30,6 @@ interface PrView {
 const SPEC_BUDGET_CHARS = 60_000;
 const DOC_BUDGET_CHARS = 40_000;
 const FILE_CONTENT_CHARS = 12_000;
-const MIGRATION_MAX_FILES = 20;
-const MIGRATION_BUDGET_CHARS = 30_000;
 
 export class GitHubSource implements ReviewSource {
   private gh: GhRunner;
@@ -121,7 +118,6 @@ export class GitHubSource implements ReviewSource {
     const specs = await this.loadSpecs(pr.headSha, manifest);
     const docs = await this.loadDocs(pr.headSha, manifest);
     const agentInstructions = await this.loadAgentInstructions(pr.headSha, manifest);
-    const migrations = await this.loadMigrations(pr.headSha, manifest, diffText, review.map((f) => f.path));
 
     return {
       repo: this.repo,
@@ -138,7 +134,6 @@ export class GitHubSource implements ReviewSource {
       threadsTrusted,
       manifest,
       docs,
-      migrations,
       contextTruncated: false,
     };
   }
@@ -255,46 +250,6 @@ export class GitHubSource implements ReviewSource {
       .catch(() => [] as string[]);
     const paths = selectAgentInstructionPaths(tree, manifest.agentInstructions, manifest.skip);
     return assembleAgentInstructions(paths, (p) => ghReadFile(this.gh, this.repo, p, ref));
-  }
-
-  /**
-   * Migrations naming tables the diff references — schema facts. A constraint
-   * defined outside the diff is what kills a false premise ("this column is
-   * not unique") that would otherwise ship as a wrong Major, so the verifier
-   * gets these files deterministically and can cite them. Files already in the
-   * diff carry full content and are skipped here.
-   */
-  private async loadMigrations(
-    ref: string,
-    manifest: Manifest,
-    diffText: string,
-    inDiffPaths: string[],
-  ): Promise<SpecFile[]> {
-    const tables = extractTableRefs(diffText);
-    if (!tables.length) return [];
-    // A recursive tree, like the instruction loader: migration dirs nest deep
-    // and the shared ghTree helper is root-only.
-    const tree = await ghJson<{ tree?: { path: string; type: string }[] }>(
-      this.gh,
-      ['api', `repos/${this.repo}/git/trees/${ref}?recursive=1`],
-    )
-      .then((d) => (d.tree ?? []).filter((t) => t.type === 'blob').map((t) => t.path))
-      .catch(() => [] as string[]);
-    const inDiff = new Set(inDiffPaths);
-    const paths = selectMigrationPaths(tree, tables, manifest.migrations, manifest.skip).filter(
-      (p) => !inDiff.has(p),
-    );
-    const migrations: SpecFile[] = [];
-    let budget = MIGRATION_BUDGET_CHARS;
-    for (const p of paths.slice(0, MIGRATION_MAX_FILES)) {
-      if (budget <= 0) break;
-      const content = await ghReadFile(this.gh, this.repo, p, ref);
-      if (!content) continue;
-      const cut = truncate(content, budget);
-      migrations.push({ path: p, content: cut });
-      budget -= cut.length;
-    }
-    return migrations;
   }
 
   private async loadDocs(ref: string, manifest: Manifest): Promise<ReviewContext['docs']> {
