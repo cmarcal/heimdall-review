@@ -21,13 +21,34 @@ one of four public tiers:
     { "id": "minor",   "min": 8 },    // 🟡
     { "id": "nit",     "min": 0 }     // 🔵
   ],
-  "question": { "certaintyCap": 3, "maxTier": "minor" }
+  "question": { "certaintyCap": 3, "maxTier": "minor" },
+  "teach":    { "below": 60, "maxScore": 30 }
 }
 ```
 
 The numbers **never appear on the PR** — only the tier. The map lives in the harness,
 not in the reviewed repo, so calibration is one file edit that applies everywhere.
 `npm run heimdall -- doctor --scoring` prints the current map.
+
+## The teaching bar
+
+`--teach` explains the findings a reader is least likely to act on: those scoring
+under `teach.below` get a body that says what the code does, why it breaks and how
+to fix it, instead of a one-line verdict. Nothing else about the finding changes —
+same score, tier, quote and PR score, and the comment still has to pass a harness
+gate (quote verbatim, three labels, word budget) or it falls back to the plain
+comment, declared in the run log.
+
+The bar is **normalized**: `round(score / maxScore * 100) < below`, with `maxScore`
+the map's total (30 today). So the bar keeps meaning "the bottom 40% of severity"
+after you re-weight the sub-scores or move the tier cutoffs, instead of silently
+turning into "explain nothing" because a weight changed from 1 to 2. A repo can
+also set `teach.below` in its own `.pr-review.json`, and `--teach-below <0-100>`
+beats both for a single run.
+
+Normalization is also why teach mode cannot leak a number. The bar is a
+calibration setting the whole repo shares; an individual finding's score is not, and
+it stays where every other sub-score stays — in `runs/`, never on GitHub.
 
 ## The question clamp
 

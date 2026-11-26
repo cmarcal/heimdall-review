@@ -13,7 +13,9 @@ quote it from the real code.
 - `npm run heimdall -- eval` - offline eval, no key, deterministic. It must stay
   at recall 5/5, precision 100%, 0 hallucinations posted.
 - `npm run heimdall -- review <pr> --repo owner/repo` - review a PR. Dry-run is
-  the default and posts nothing; add `--post` to publish.
+  the default and posts nothing; add `--post` to publish. Add `--teach` to explain
+  the low-scoring findings in full (`--teach-below <0-100>` moves the bar), and the
+  same pair exists on `eval`.
 - `npm run install-skill` / `npm run uninstall-skill` - link the `/heimdall-review`
   agent skill into `~/.claude/skills` and `~/.agents/skills`.
 
@@ -27,6 +29,14 @@ The flow is: `src/cli.ts` -> a source (`src/sources/github.ts` or
 runs it -> `src/agents/base.ts` (`runAgent`) packs the context (`src/agents/prompt.ts`)
 and enforces the quote gate -> `src/agents/consolidator.ts` merges and rewrites ->
 `src/lib/post.ts` publishes.
+
+Optional teach mode (`--teach`) is one more step after the consolidator and before
+reporting: `src/agents/teach.ts` rewrites the comment of any finding scoring under
+`teach.below` in `config/scoring.json` into what the code does / why it breaks / how
+to fix it, and the harness rejects the rewrite unless the evidence quote is still
+verbatim and the prose fits, falling back to the plain comment. It changes prose
+only: no score, tier, verdict or recall moves, and the skill's
+`scripts/check-taught.mjs` enforces the same gate.
 
 The shared brain is `prompts/*.md` and `config/scoring.json`. `src/lib/manifest.ts`
 parses a repo's `.pr-review.json` and holds the discovery defaults (skip globs,
@@ -46,6 +56,9 @@ names tables, the source fetches the migrations naming them as schema facts
 - The quote gate proves the problem, never the fix. Evidence is gated deterministically; `suggestion` is not, and authors paste it verbatim — so prompts require a fix to be provably correct from the provided code or phrased as a direction, never an unverified command. A fix that reaches files the diff did not touch is phrased as a follow-up.
 - Nothing posts to GitHub without `--post` (CLI) or explicit confirmation (skill).
   Dry-run is the default state.
+- Teach mode explains a finding, it never re-judges it. Tier, score, sub-scores,
+  `title` and `verifiedEvidence` come from the verified record, never from the
+  teaching model.
 - Declared coverage beats fake coverage. Failed specialists, dropped findings, and
   files cut by caps are always reported, never hidden.
 - Prose is American English, plain and specific. Do not put a severity word in a
