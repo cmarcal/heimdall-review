@@ -40,3 +40,16 @@ export const consolidatorSchema = z.object({
     .default([]),
 });
 export type ConsolidatorOutput = z.infer<typeof consolidatorSchema>;
+
+/**
+ * Teach-pass output: three sentences the harness renders into labeled parts.
+ * The model never writes the comment and never sees a score — it explains, the
+ * harness formats. `tryThis` is an optional paste-ready line.
+ */
+export const taughtFieldsSchema = z.object({
+  what: z.string().trim().min(1),
+  why: z.string().trim().min(1),
+  how: z.string().trim().min(1),
+  tryThis: z.string().trim().min(1).optional(),
+});
+export type TaughtFields = z.infer<typeof taughtFieldsSchema>;

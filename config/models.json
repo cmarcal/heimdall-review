@@ -16,6 +16,7 @@
         "performance":    { "model": "claude-haiku-4-5",  "capability": "standard", "pricePerMTok": { "input": 1, "output": 5 } },
         "verifier":       { "model": "claude-sonnet-4-5", "capability": "high",     "pricePerMTok": { "input": 3, "output": 15 } },
         "consolidator":   { "model": "claude-sonnet-4-5", "capability": "high",     "pricePerMTok": { "input": 3, "output": 15 } },
+        "teach":          { "model": "claude-sonnet-4-5", "capability": "high",     "pricePerMTok": { "input": 3, "output": 15 } },
         "gap-check":      { "model": "claude-haiku-4-5",  "capability": "standard", "pricePerMTok": { "input": 1, "output": 5 } }
       }
     },

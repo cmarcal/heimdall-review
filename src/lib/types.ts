@@ -19,7 +19,7 @@ export const AGENT_NAMES: AgentName[] = [
   'standards',
 ];
 
-export type AgentRole = AgentName | 'verifier' | 'consolidator' | 'gap-check';
+export type AgentRole = AgentName | 'verifier' | 'consolidator' | 'gap-check' | 'teach';
 
 export interface DiffFile {
   path: string;

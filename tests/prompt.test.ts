@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { AGENT_NAMES, type ReviewContext } from '../src/lib/types.js';
 import { defaultManifest } from '../src/lib/manifest.js';
-import { buildContextPack } from '../src/agents/prompt.js';
+import { buildContextPack, loadPrompt } from '../src/agents/prompt.js';
 
 // The shared "Repo agent instructions" section: it reaches every specialist,
 // sits right after the specs, and is the first thing cut under window pressure
@@ -112,5 +112,42 @@ describe('Migrations section (schema facts)', () => {
     expect(pack).not.toContain('## Migrations for tables'); // migrations go next
     expect(pack).toContain('## Repo agent instructions');
     expect(pack).toContain('## Spec files');
+  });
+});
+
+// The teacher prompt is the single source of the teaching voice: the CLI reads
+// it, the skill's Step 5 points at it, and the harness gate checks for the
+// three labels it names. Renaming a label here without renaming it in
+// src/agents/teach.ts is the failure this test exists to catch.
+describe('teach prompt contract', () => {
+  const teach = loadPrompt('teach');
+
+  it('names the three section labels the gate requires', () => {
+    for (const label of ['What the code does', 'Why it breaks', 'How to fix it']) {
+      expect(teach).toContain(label);
+    }
+  });
+
+  it('holds the proof bar for a fix the author pastes verbatim', () => {
+    expect(teach).toMatch(/provabl|prove/i);
+    expect(teach).toMatch(/direction/i);
+    expect(teach).toMatch(/follow-up/);
+  });
+
+  it('states its own word budget and the reply contract', () => {
+    expect(teach).toContain('180');
+    expect(teach).toMatch(/"what"/);
+    expect(teach).toMatch(/"tryThis"/);
+  });
+
+  it('keeps the voice rules that carry over from the review voice', () => {
+    expect(teach).toMatch(/American English/);
+    expect(teach).toMatch(/no hedging|never hedge/i);
+    expect(teach).toMatch(/praise/i);
+  });
+
+  it('forbids repeating the quote and the private scores', () => {
+    expect(teach).toMatch(/evidence/i);
+    expect(teach).toMatch(/score/i);
   });
 });

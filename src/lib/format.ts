@@ -6,6 +6,11 @@
 
 /** Prose word budget for one inline comment. Fenced evidence is free. */
 export const MAX_INLINE_WORDS = 80;
+/**
+ * Budget for a taught body (teach mode): the same evidence plus three labeled
+ * parts that explain it. Fenced code stays free here too.
+ */
+export const MAX_TAUGHT_WORDS = 180;
 /** The title renders as a bold header — it must stay a single line. */
 export const MAX_TITLE_CHARS = 90;
 
