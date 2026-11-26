@@ -10,20 +10,20 @@ import { globMatch } from '../src/lib/util.js';
 describe('extractTableRefs', () => {
   it('finds DML tables, splitting schema-qualified names', () => {
     const diff = [
-      '+  `SELECT id, full_name FROM valkyrie.eligible_member WHERE id = $1`',
-      '+  `UPDATE valkyrie.eligible_member SET mobile_number = $2`',
+      '+  `SELECT id, full_name FROM core.eligible_member WHERE id = $1`',
+      '+  `UPDATE core.eligible_member SET mobile_number = $2`',
       '+  `INSERT INTO queue (id) VALUES ($1)`',
     ].join('\n');
-    expect(extractTableRefs(diff)).toEqual(['eligible_member', 'queue', 'valkyrie']);
+    expect(extractTableRefs(diff)).toEqual(['core', 'eligible_member', 'queue']);
   });
 
   it('finds DDL targets (create/alter/drop/truncate table)', () => {
     const diff = [
-      '+CREATE TABLE IF NOT EXISTS valkyrie.queue (id uuid);',
+      '+CREATE TABLE IF NOT EXISTS core.queue (id uuid);',
       '+ALTER TABLE eligible_member ADD CONSTRAINT ...;',
       '+TRUNCATE TABLE audit_log;',
     ].join('\n');
-    expect(extractTableRefs(diff)).toEqual(['audit_log', 'eligible_member', 'queue', 'valkyrie']);
+    expect(extractTableRefs(diff)).toEqual(['audit_log', 'core', 'eligible_member', 'queue']);
   });
 
   it('filters syntax noise, aliases and short names', () => {

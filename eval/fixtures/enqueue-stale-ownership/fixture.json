@@ -1,11 +1,11 @@
 {
-  "repo": "acme/valkyrie-lite",
+  "repo": "acme/signup-sync",
   "pr": {
     "number": 7,
     "title": "Text the sign-up link to already-eligible opt-ins",
     "body": "When the opted-in number is already in the client's eligible base, enqueue one sign-up SMS job for it. The member table has a unique constraint on (client_id, mobile_number) — the PR body claim; the migration is the fact.",
     "author": "dev",
-    "url": "https://github.com/acme/valkyrie-lite/pull/7",
+    "url": "https://github.com/acme/signup-sync/pull/7",
     "headRef": "feat/already-eligible-sms",
     "baseRef": "main",
     "headSha": "ccc333"
@@ -14,7 +14,7 @@
   "migrations": [
     {
       "path": "db/migrations/0012_create_eligible_member.up.sql",
-      "content": "CREATE TABLE valkyrie.eligible_member (\n    id uuid NOT NULL,\n    client_id uuid NOT NULL,\n    employee_id text,\n    mobile_number text,\n    full_name text,\n    CONSTRAINT uq_eligible_member_client_id_mobile_number\n        UNIQUE (client_id, mobile_number),\n    PRIMARY KEY (id)\n);\n"
+      "content": "CREATE TABLE core.eligible_member (\n    id uuid NOT NULL,\n    client_id uuid NOT NULL,\n    employee_id text,\n    mobile_number text,\n    full_name text,\n    CONSTRAINT uq_eligible_member_client_id_mobile_number\n        UNIQUE (client_id, mobile_number),\n    PRIMARY KEY (id)\n);\n"
     }
   ]
 }
