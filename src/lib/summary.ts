@@ -96,6 +96,15 @@ export function buildSummaryComment(
   const notes: string[] = [];
   if (run.contextTruncated) notes.push('Context was truncated to fit the configured models\' window — coverage of file contents is partial.');
   if (run.budgetUsd > 0) notes.push(`LLM budget: $${run.spentUsd.toFixed(3)} of $${run.budgetUsd.toFixed(2)} spent.`);
+  // Only say it when teach mode had something to explain: an author reading a
+  // review that changed nothing should not have to wonder what changed.
+  if (run.teach && run.teach.eligible > 0) {
+    const t = run.teach;
+    notes.push(
+      `Teach mode is on: ${t.taught} finding${t.taught === 1 ? '' : 's'} under the bar (${t.below}/100) explained in full — ` +
+        `what the code does, why it breaks, how to fix it; ${t.fallback} kept the terse comment.`,
+    );
+  }
   if (notes.length) {
     lines.push('### Notes');
     for (const n of notes) lines.push(`- ${n}`);

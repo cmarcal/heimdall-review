@@ -11,6 +11,8 @@ import { mergeCloseFindings } from './dedupe.js';
 import { describeFixes, fixProse } from './prose.js';
 import { buildSummaryComment, computeVerdict } from './summary.js';
 import { countTiers, prScoreOf, renderReport } from './output.js';
+import { shouldTeach, teachScoringConfig, DEFAULT_TEACH_BELOW } from './scoring.js';
+import { teach, teachStats } from '../agents/teach.js';
 import {
   heimdallPriorBuckets,
   humanThreadFor,
@@ -30,6 +32,7 @@ import type {
   GapCheckResult,
   ReviewContext,
   RunSummary,
+  TeachRunRecord,
 } from './types.js';
 import { AGENT_NAMES } from './types.js';
 import { mapWithConcurrency } from './util.js';
@@ -46,6 +49,13 @@ export interface OrchestratorOptions {
   log?: (msg: string) => void;
   /** injectable for eval + tests (ScriptedLlm or a real RoleLlm) */
   llmFactory?: (cfg: ModelsConfig, budget: Budget, fetchImpl: typeof globalThis.fetch) => ReviewerLlm;
+  /**
+   * Explain the findings that scored low, after consolidation. Off by default:
+   * a run without it is byte-identical to a run without this feature.
+   */
+  teach?: boolean;
+  /** normalized 0-100 bar for this run; beats the repo manifest and the config */
+  teachBelow?: number;
 }
 
 export interface OrchestratorResult {
@@ -113,6 +123,25 @@ export async function runReview(opts: OrchestratorOptions): Promise<Orchestrator
     consolidated = await consolidate(merged, llm, log);
   }
 
+  // STEP 3b — teach mode. Deliberately last: pass 1, the pass-2 verifier, the
+  // dedupe, the gap-check and the consolidator all read the terse findings they
+  // read without the flag, so teaching cannot move a verdict.
+  let teachRecord: TeachRunRecord | undefined;
+  if (opts.teach) {
+    // Only the teaching bar moves: the weights and tiers stay the map the
+    // specialists and the verifier were scored against.
+    const override = opts.teachBelow ?? ctx.manifest.teach?.below;
+    const teachScoring = teachScoringConfig(scoring, override === undefined ? undefined : { below: override });
+    const below = teachScoring.teach?.below ?? DEFAULT_TEACH_BELOW;
+    const eligible = consolidated.filter((c) => shouldTeach(c.finding, teachScoring)).length;
+    log(`teach mode: explaining findings under ${below}/100 — ${eligible} of ${consolidated.length} qualify`);
+    const before = consolidated;
+    if (eligible) consolidated = await teach(before, ctx, llm, { scoring: teachScoring }, log);
+    const { taught, fallback } = teachStats(before, consolidated, teachScoring);
+    teachRecord = { below, eligible, taught, fallback };
+    if (fallback) log(`teach mode: ${fallback} finding(s) kept the terse comment (reason declared above)`);
+  }
+
   const finalFindings = consolidated.map((c) => c.finding);
   const counts = countTiers(finalFindings);
   const modelsUsed = [...llm.used.values()];
@@ -143,6 +172,7 @@ export async function runReview(opts: OrchestratorOptions): Promise<Orchestrator
     modelsUsed,
     budgetUsd: ctx.manifest.budgetUsd,
     spentUsd: budget.spentUsd,
+    ...(teachRecord ? { teach: teachRecord } : {}),
   };
 
   const report = renderReport(ctx.repo, ctx.prNumber, consolidated, summary);
@@ -161,6 +191,7 @@ export async function runReview(opts: OrchestratorOptions): Promise<Orchestrator
     gaps,
     modelsUsed,
     spentUsd: budget.spentUsd,
+    ...(teachRecord ? { teach: teachRecord } : {}),
     posted: {},
   } satisfies RunArtifact);
   log(`run artifact: ${path.relative(process.cwd(), artifact)}`);

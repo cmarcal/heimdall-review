@@ -1,0 +1,14 @@
+{
+  "repo": "acme/api",
+  "pr": {
+    "number": 12,
+    "title": "Add user lookup and search routes",
+    "body": "Adds GET /user/:id and GET /users?q=.",
+    "author": "dev",
+    "url": "https://github.com/acme/api/pull/12",
+    "headRef": "feat/user-routes",
+    "baseRef": "main",
+    "headSha": "ccc333"
+  },
+  "ticket": null
+}

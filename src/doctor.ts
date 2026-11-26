@@ -16,6 +16,7 @@ const ROLES: AgentRole[] = [
   'standards',
   'verifier',
   'consolidator',
+  'teach',
   'gap-check',
 ];
 

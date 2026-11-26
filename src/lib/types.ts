@@ -185,4 +185,18 @@ export interface RunSummary {
   modelsUsed: { role: string; model: string; capability: Capability }[];
   budgetUsd: number;
   spentUsd: number;
+  /** present only when the run asked for --teach */
+  teach?: TeachRunRecord;
+}
+
+/** What teach mode did this run. Absent when it was not asked for. */
+export interface TeachRunRecord {
+  /** the normalized 0-100 bar this run used */
+  below: number;
+  /** findings under the bar, i.e. the ones worth explaining */
+  eligible: number;
+  /** of those, how many shipped a teaching body */
+  taught: number;
+  /** of those, how many kept the terse comment because the gate refused */
+  fallback: number;
 }

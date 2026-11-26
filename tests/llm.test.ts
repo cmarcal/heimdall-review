@@ -1,7 +1,9 @@
 import { describe, it, expect, vi } from 'vitest';
+import { join } from 'node:path';
 import { createOpenAiCompatibleClient } from '../src/llm/openai-compatible.js';
 import { createAnthropicClient } from '../src/llm/anthropic.js';
-import type { ResolvedModel } from '../src/llm/config.js';
+import { loadModelsConfig, type ResolvedModel } from '../src/llm/config.js';
+import { CONFIG_DIR } from '../src/lib/paths.js';
 
 const base: ResolvedModel = {
   role: 'security', provider: 'openai-compatible', baseUrl: 'https://x.test', apiKey: 'k',
@@ -59,4 +61,19 @@ describe('anthropic adapter', () => {
     expect(cap.url).toBe('https://x.test/messages');
     expect((cap.init?.headers as Record<string, string>)['x-api-key']).toBe('k');
   });
+});
+
+// resolveModel has no fallback: a role a preset does not name throws the moment
+// the harness calls it. These four always run — the standards specialist is the
+// only optional one, enabled when a repo ships written rules.
+describe('the shipped model config', () => {
+  const cfg = loadModelsConfig(join(CONFIG_DIR, 'models.json'));
+
+  for (const role of ['verifier', 'consolidator', 'teach', 'gap-check'] as const) {
+    it(`defines ${role} in every preset`, () => {
+      for (const [preset, def] of Object.entries(cfg.presets)) {
+        expect(def.agents[role], `${preset}.${role}`).toBeTruthy();
+      }
+    });
+  }
 });

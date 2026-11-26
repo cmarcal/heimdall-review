@@ -34,6 +34,7 @@
         "performance":    { "model": "meta-llama/llama-3.3-70b-instruct:free", "capability": "basic" },
         "verifier":       { "model": "meta-llama/llama-3.3-70b-instruct:free", "capability": "basic" },
         "consolidator":   { "model": "meta-llama/llama-3.3-70b-instruct:free", "capability": "basic" },
+        "teach":          { "model": "meta-llama/llama-3.3-70b-instruct:free", "capability": "basic" },
         "gap-check":      { "model": "meta-llama/llama-3.3-70b-instruct:free", "capability": "basic" }
       }
     },
@@ -52,6 +53,7 @@
         "performance":    { "model": "qwen2.5-coder:32b", "capability": "basic" },
         "verifier":       { "model": "qwen2.5-coder:32b", "capability": "basic" },
         "consolidator":   { "model": "qwen2.5-coder:32b", "capability": "basic" },
+        "teach":          { "model": "qwen2.5-coder:32b", "capability": "basic" },
         "gap-check":      { "model": "llama3.2:3b",       "capability": "basic" }
       }
     }
